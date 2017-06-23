@@ -6,9 +6,18 @@
 </head>
 <body>
                                                     
-<a th:href="@{http://www.thymeleaf.org/doc/articles/standardurlsyntax.html}">Task 1</a>
-<br/>
-<a th:href="@{/task(id=3)}">Task 2</a>
+<table>
+  <th:block th:each="task : ${taskList}">
+    <tr>
+      <td th:utext="${task.description}">Task Description</td>
+    </tr>
+    <tr>
+      <td>
+        <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+      </td>
+    </tr>
+  </th:block>
+</table>
 
 </body>
 </html>
