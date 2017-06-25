@@ -9,12 +9,10 @@
 <table>
   <th:block th:each="task : ${taskList}">
     <tr>
-      <td th:utext="${task.description}">Task Description</td>
-    </tr>
-    <tr>
-      <td>
-        <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
-      </td>
+      <h3 th:text="${task.name}">Задание 1</h3>
+      <p th:utext="${task.description}">Описание задания</p>
+      <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+      <br/>
     </tr>
   </th:block>
 </table>

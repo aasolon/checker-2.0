@@ -6,4 +6,4 @@ CREATE TABLE Task (
   Result CLOB,
   Example_InitialData CLOB,
   Example_Result CLOB
-)
+);

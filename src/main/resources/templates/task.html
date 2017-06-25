@@ -5,6 +5,30 @@
   <title>task</title>
 </head>
 <body>
-  <p th:text="${task.description}"/>
+  <h2 th:text="${task.name}">Задание 1</h2>
+  <p th:utext="${task.description}">Описание задания</p>
+  <h4>Исходные данные</h4>
+  <p th:utext="${task.initialData}">Описание исходных данных</p>
+  <h4>Результат</h4>
+  <p th:utext="${task.result}">Описание результата</p>
+  <h4>Пример</h4>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Исходные данные</th>
+        <th>Результат</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <pre th:utext="${task.exampleInitialData}"/>
+        </td>
+        <td>
+          <pre th:utext="${task.exampleResult}"/>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </body>
 </html>

@@ -2,6 +2,8 @@ package com.bftcom.devtournament.checker;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +30,12 @@ public class MainController {
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
   }
 
+  private RowMapper<Task> getTaskRowMapper() {
+    return (rs, rowNum) -> new Task(rs.getLong("Id"), rs.getString("Name"),
+            rs.getString("Description"), rs.getString("InitialData"), rs.getString("Result"),
+            rs.getString("Example_InitialData"), rs.getString("Example_Result"));
+  }
+
   @RequestMapping("/")
   public String index() {
     return "redirect:/tasklist";
@@ -35,9 +43,8 @@ public class MainController {
 
   @RequestMapping("/tasklist")
   public String taskList(Model model) {
-    String sql = "SELECT Id, InitialData FROM Task";
-    List<Task> taskList = namedParameterJdbcTemplate
-        .query(sql, (rs, rowNum) -> new Task(rs.getLong("Id"), rs.getString("InitialData")));
+    String sql = "SELECT Id, Name, Description, InitialData, Result, Example_InitialData, Example_Result FROM Task";
+    List<Task> taskList = namedParameterJdbcTemplate.query(sql, getTaskRowMapper());
     model.addAttribute("taskList", taskList);
     return "tasklist";
   }
@@ -46,9 +53,8 @@ public class MainController {
   public String task(@PathVariable("id") long id, Model model) {
     Map<String, Object> params = new HashMap<>();
     params.put("id", id);
-    String sql = "SELECT Id, Description FROM Task WHERE id=:id";
-    Task task = namedParameterJdbcTemplate
-        .queryForObject(sql, params, (rs, rowNum) -> new Task(rs.getLong("Id"), rs.getString("Description")));
+    String sql = "SELECT Id, Name, Description, InitialData, Result, Example_InitialData, Example_Result FROM Task WHERE id=:id";
+    Task task = namedParameterJdbcTemplate.queryForObject(sql, params, getTaskRowMapper());
     model.addAttribute("task", task);
     model.addAttribute("id", id);
     return "/task";
@@ -56,11 +62,21 @@ public class MainController {
 
   class Task {
     public long id;
+    public String name;
     public String description;
+    public String initialData;
+    public String result;
+    public String exampleInitialData;
+    public String exampleResult;
 
-    public Task(long id, String description) {
+    public Task(long id, String name, String description, String initialData, String result, String exampleInitialData, String exampleResult) {
       this.id = id;
+      this.name = name;
       this.description = description;
+      this.initialData = initialData;
+      this.result = result;
+      this.exampleInitialData = exampleInitialData;
+      this.exampleResult = exampleResult;
     }
   }
 }
