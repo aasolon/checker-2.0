@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>resultlist</title>
+</head>
+<body>
+  <div th:fragment="resultlist" th:unless="${#lists.isEmpty(resultList)}">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Язык</th>
+          <th>Результат проверки</th>
+          <th>№ теста</th>
+          <th>Время работы</th>
+          <th>Выделено памяти</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="result : ${resultList}">
+          <td th:text="${result.timestamp}"></td>
+          <td th:text="${result.language}"></td>
+          <td th:text="${result.verdict}"></td>
+          <td th:text="${result.testNumber}"></td>
+          <td th:text="${result.runtime}"></td>
+          <td th:text="${result.memory}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

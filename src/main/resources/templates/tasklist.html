@@ -5,16 +5,22 @@
   <title>tasklist</title>
 </head>
 <body>
-                                                    
-<table>
-  <th:block th:each="task : ${taskList}">
-    <tr>
+ 
+<table th:each="task : ${taskList}">
+  <tr>
+    <td>
       <h3 th:text="${task.name}">Задание 1</h3>
       <p th:utext="${task.description}">Описание задания</p>
       <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
-      <br/>
-    </tr>
-  </th:block>
+    </td>
+  </tr>
+  <tr th:remove="all">
+    <td>
+      <h3 th:text="${task.name}">Задание 2</h3>
+      <p th:utext="${task.description}">Описание задания</p>
+      <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+    </td>
+  </tr>
 </table>
 
 </body>
