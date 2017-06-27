@@ -29,5 +29,12 @@
       </tbody>
     </table>
   </div>
+  <div th:fragment="errorlist" th:unless="${#lists.isEmpty(errorList)}">
+    <table border="1">
+      <tr th:each="error : ${errorList}">
+        <td th:text="${error}"></td>
+      </tr>
+    </table>
+  </div>
 </body>
 </html>

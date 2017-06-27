@@ -19,7 +19,8 @@ CREATE TABLE Team (
 
 CREATE TABLE Language (
   Id IDENTITY,
-  Name VARCHAR(255)
+  Name VARCHAR(255),
+  OosKey BIGINT
 );
 
 CREATE TABLE Result (

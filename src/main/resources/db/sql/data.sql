@@ -34,5 +34,6 @@ INSERT INTO Team VALUES (
 
 INSERT INTO Language VALUES (
   1,
-  'Java 8'
+  'Java 8',
+  32
 );

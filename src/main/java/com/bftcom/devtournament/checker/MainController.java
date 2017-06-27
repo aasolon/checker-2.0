@@ -5,9 +5,12 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -55,8 +58,21 @@ public class MainController {
   }
 
   @RequestMapping("/submit")
-  public String submit(@RequestParam Long taskId, @RequestParam String token, @RequestParam String sourceCode, Model model) throws IOException {
-    SubmitResult submitResult = outgoingManager.sumbit(sourceCode);
+//  public String submit(@RequestParam Long taskId, @RequestParam String token, @RequestParam String sourceCode, Model model) throws IOException {
+  public String submit(@Valid @RequestBody SubmitData submitData, Errors errors, Model model) throws IOException {
+//    Map<String, Object> params = new HashMap<>();
+//    params.put("id", taskId);
+//    String sql = "SELECT Id, Name, Description, InitialData, Result, Example_InitialData, Example_Result FROM Task WHERE id=:id";
+//    Task task = namedParameterJdbcTemplate.queryForObject(sql, params, getTaskRowMapper());
+//    model.addAttribute("task", task);
+    if (true) {
+      model.addAttribute("errorList", Arrays.asList("error 1", "error 2"));
+      return "result :: errorlist";
+//      return "task";
+
+    }
+//    SubmitResult submitResult = outgoingManager.sumbit(judgeID, sourceCode);
+    SubmitResult submitResult = SubmitResult.OK;
     List<Result> resultList = new ArrayList<>();
     
     if (submitResult != SubmitResult.OK) {
@@ -69,10 +85,6 @@ public class MainController {
           "111"));
     } else {
 //      List<OosResult> oosResultList = outgoingManager.getOosResultList();
-//      String sql = "SELECT Id, Name, Description, InitialData, Result, Example_InitialData, Example_Result FROM Result WHERE id=:id";
-//      Task task = namedParameterJdbcTemplate.queryForObject(sql, params, getTaskRowMapper());
-//      String sql = "SELECT Id, Name, Description, InitialData, Result, Example_InitialData, Example_Result FROM Result WHERE id=:id";
-//      Task task = namedParameterJdbcTemplate.queryForObject(sql, params, getTaskRowMapper());
       resultList.add(new Result(
           new Timestamp(System.currentTimeMillis()),
           "Java 8",

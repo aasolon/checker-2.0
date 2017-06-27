@@ -39,15 +39,15 @@ public class OutgoingManager {
   HtmlParser htmlParser;
 
   // sumbit
-  public SubmitResult sumbit(String sourceCode) {
+  public SubmitResult sumbit(long judgeId, long langId, long problemNum, String sourceCode) {
     try {
       HttpEntity requestEntity = MultipartEntityBuilder.create()
           .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
           .addTextBody("Action", "submit")
           .addTextBody("SpaceID", "1")
-          .addTextBody("JudgeID", "230361FH")
-          .addTextBody("Language", "31")
-          .addTextBody("ProblemNum", "1000")
+          .addTextBody("JudgeID", String.valueOf(judgeId))
+          .addTextBody("Language", String.valueOf(langId))
+          .addTextBody("ProblemNum", String.valueOf(problemNum))
           .addTextBody("Source", sourceCode)
           .build();
       SubmitResult submitResult = Request.Post("http://acm.timus.ru/submit.aspx?space=1")
