@@ -5,7 +5,9 @@
   <title>resultlist</title>
 </head>
 <body>
-  <div th:fragment="resultlist" th:unless="${#lists.isEmpty(resultList)}">
+
+  <div id="resultlist" th:fragment="resultlist" th:unless="${#lists.isEmpty(resultList)}">
+    <h4>Результаты проверки решений</h4>
     <table border="1">
       <thead>
         <tr>
@@ -29,12 +31,15 @@
       </tbody>
     </table>
   </div>
-  <div th:fragment="errorlist" th:unless="${#lists.isEmpty(errorList)}">
-    <table border="1">
+
+  <div id="errorlist" th:fragment="errorlist" th:unless="${#lists.isEmpty(errorList)}" style="color:red">
+    <h4>Что-то пошло не так:</h4>
+    <table>
       <tr th:each="error : ${errorList}">
         <td th:text="${error}"></td>
       </tr>
     </table>
   </div>
+
 </body>
 </html>

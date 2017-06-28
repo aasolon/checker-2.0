@@ -1,51 +1,35 @@
-package com.bftcom.devtournament.checker;
+package com.bftcom.devtournament.checker.service;
 
+import com.bftcom.devtournament.checker.model.OosResult;
+import com.bftcom.devtournament.checker.util.HtmlParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
-import java.sql.Timestamp;
 import java.util.List;
 
-/**
- * @author a.solonshchikov
- *         Date: 26.06.2017
- */
-@Component
+@Service
 public class OutgoingManager {
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   private static final String WAIT_MSG = "The break between submissions must be at least 10 seconds";
 
-  @Autowired
-  HtmlParser htmlParser;
-
   // sumbit
-  public SubmitResult sumbit(long judgeId, long langId, long problemNum, String sourceCode) {
+  public SubmitResult sumbit(String judgeId, long langId, long problemNum, String sourceCode) {
     try {
       HttpEntity requestEntity = MultipartEntityBuilder.create()
           .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
           .addTextBody("Action", "submit")
           .addTextBody("SpaceID", "1")
-          .addTextBody("JudgeID", String.valueOf(judgeId))
+          .addTextBody("JudgeID", judgeId)
           .addTextBody("Language", String.valueOf(langId))
           .addTextBody("ProblemNum", String.valueOf(problemNum))
           .addTextBody("Source", sourceCode)
@@ -77,7 +61,7 @@ public class OutgoingManager {
             HttpEntity responseEntity = response.getEntity();
             String responseString = EntityUtils.toString(responseEntity);
             if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-              return htmlParser.parseOosResultList(responseString);
+              return HtmlParser.parseOosResultList(responseString);
             } else {
               return null;
             }

@@ -1,12 +1,8 @@
-package com.bftcom.devtournament.checker;
+package com.bftcom.devtournament.checker.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-/**
- * @author a.solonshchikov
- *         Date: 26.06.2017
- */
 public class Result {
   public Timestamp timestamp;
   public String language;

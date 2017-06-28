@@ -4,8 +4,27 @@
   <meta charset="UTF-8"/>
   <title>task</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
-  <script th:src="@{/js/checker.js}"></script>
+  <script th:inline="javascript">
+    function sendSolution() {
+      var submitData = {taskId: $("#taskId").val(), token: $("#token").val(), sourceCode: $("#sourceCode").val()};
+
+      $.ajax({
+        type:"POST",
+        contentType: "application/json",
+        url: /*[[@{/submit}]]*/ null,
+        data: JSON.stringify(submitData),
+        dataType: 'html',
+        success: function(responseText) {
+          $("#errorBlock").empty();
+          var html = $.parseHTML(responseText)[0];
+          if (html["id"] == "resultlist")
+            $("#resultBlock").html(responseText);
+          if (html["id"] == "errorlist")
+            $("#errorBlock").html(responseText);
+        }
+      })
+    }
+  </script>
 </head>
 <body>
   <input id="taskId" type="hidden" th:value="${task.id}"/>
@@ -25,12 +44,6 @@
     </thead>
     <tbody>
       <tr>
-        <!--<td>-->
-          <!--<pre th:utext="${task.exampleInitialData}"/>-->
-        <!--</td>-->
-        <!--<td>-->
-          <!--<pre th:utext="${task.exampleResult}"/>-->
-        <!--</td>-->
         <td th:utext="${task.exampleInitialData}">0</td>
         <td th:utext="${task.exampleResult}">1</td>
       </tr>
@@ -47,9 +60,10 @@
   <br/>
   <input type="submit" value="Отправить" onclick="sendSolution()"/>
 
-  <h4>Результаты проверки решений</h4>
-  <div id="resultBlock">
+  <div id="errorBlock">
+  </div>
 
+  <div id="resultBlock">
   </div>
 </body>
 </html>
