@@ -22,6 +22,22 @@ public class OutgoingManager {
 
   private static final String WAIT_MSG = "The break between submissions must be at least 10 seconds";
 
+  public enum SubmitResult {
+    OK(null),
+    WAIT("Интервал между попытками должен составлять не менее 10 сек."),
+    ERROR("Непредвиденная ошибка, попробуйте повторить попытку");
+
+    private String msg;
+
+    SubmitResult(String msg) {
+      this.msg = msg;
+    }
+
+    public String getMsg() {
+      return msg;
+    }
+  }
+
   // sumbit
   public SubmitResult sumbit(String judgeId, long langId, long problemNum, String sourceCode) {
     try {
@@ -53,20 +69,17 @@ public class OutgoingManager {
   }
 
 
-  public List<OosResult> getOosResultList(String num, String author) {
+  public List<OosResult> getOosResultList(long num, long author) {
     try {
-      // http://acm.timus.ru/status.aspx?space=1&num=1000&author=230361
-      List<OosResult> result = Request.Get("http://acm.timus.ru/status.aspx?space=1&num=" + num + "&author=" + author)
+      List<OosResult> oosResultList = Request.Get("http://acm.timus.ru/status.aspx?space=1&num=" + num + "&author=" + author)
           .execute().handleResponse(response -> {
             HttpEntity responseEntity = response.getEntity();
+            int responseStatusCode = response.getStatusLine().getStatusCode();
             String responseString = EntityUtils.toString(responseEntity);
-            if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-              return HtmlParser.parseOosResultList(responseString);
-            } else {
-              return null;
-            }
+            log.debug("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
+            return HtmlParser.parseOosResultList(responseString);
           });
-      return result;
+      return oosResultList;
     } catch (IOException e) {
       log.error(null, e);
       return null;

@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * @author a.solonshchikov
- *         Date: 28.06.2017
- */
 @Repository
 public class TeamDAOImpl implements TeamDAO {
 
@@ -22,7 +18,7 @@ public class TeamDAOImpl implements TeamDAO {
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Override
-  public Team finById(long id) {
+  public Team findById(long id) {
     Map<String, Object> params = new HashMap<>();
     params.put("id", id);
     String sql = "SELECT * FROM Team WHERE id=:id";

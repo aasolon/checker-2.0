@@ -3,31 +3,57 @@
 <head>
   <meta charset="UTF-8"/>
   <title>task</title>
+  <link th:href="@{/css/checker.css}" rel="stylesheet"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script th:inline="javascript">
-    function sendSolution() {
-      var submitData = {taskId: $("#taskId").val(), token: $("#token").val(), sourceCode: $("#sourceCode").val()};
+    function submitResult() {
+      var submitData = {taskId: $("#taskId").val(), langId: $("#langId").val(), token: $("#token").val(),
+        sourceCode: $("#sourceCode").val()};
 
       $.ajax({
         type:"POST",
         contentType: "application/json",
-        url: /*[[@{/submit}]]*/ null,
+        url: /*[[@{/submitResult}]]*/ null,
         data: JSON.stringify(submitData),
         dataType: 'html',
         success: function(responseText) {
           $("#errorBlock").empty();
           var html = $.parseHTML(responseText)[0];
-          if (html["id"] == "resultlist")
+          if (html["id"] == "resultlist") {
+            $("#sourceCode").val("");
             $("#resultBlock").html(responseText);
+          }
           if (html["id"] == "errorlist")
             $("#errorBlock").html(responseText);
         }
-      })
+      });
+    }
+
+    function refreshResultList() {
+      var refreshData = {taskId: $("#taskId").val(), token: $("#token").val()};
+
+      $.ajax({
+        type:"POST",
+        contentType: "application/json",
+        url: /*[[@{/refreshResultList}]]*/ null,
+        data: JSON.stringify(refreshData),
+        dataType: 'html',
+        success: function(responseText) {
+          $("#errorBlock").empty();
+          var html = $.parseHTML(responseText)[0];
+          if (html["id"] == "resultlist") {
+            $("#resultBlock").html(responseText);
+          }
+          if (html["id"] == "errorlist")
+            $("#errorBlock").html(responseText);
+        }
+      });
     }
   </script>
 </head>
 <body>
   <input id="taskId" type="hidden" th:value="${task.id}"/>
+  <input id="langId" type="hidden" th:value="1"/>
   <h2 th:text="${task.name}">Задание 1</h2>
   <p th:utext="${task.description}">Описание задания</p>
   <h4>Исходные данные</h4>
@@ -35,7 +61,7 @@
   <h4>Результат</h4>
   <p th:utext="${task.result}">Описание результата</p>
   <h4>Пример</h4>
-  <table border="1">
+  <table>
     <thead>
       <tr>
         <th>Исходные данные</th>
@@ -52,13 +78,20 @@
 
 
           
-  <p>TOKEN:</p>
-  <input id="token" type="text" size="100"/>
+  <p>Token:</p>
+  <input id="token" type="text" size="50"/>
+  <p>Язык:</p>
+  <select id="lang">
+    <option th:each="lang : ${langList}"
+            th:value="${lang.id}"
+            th:text="${lang.name}"></option>
+  </select>
   <p>Исходный код решения (не более 64 КБ):</p>
   <textarea id="sourceCode" rows="10" cols="100"></textarea>
   <br/>
   <br/>
-  <input type="submit" value="Отправить" onclick="sendSolution()"/>
+  <input type="submit" value="Отправить" onclick="submitResult()"/>
+  <input type="submit" value="Обновить результаты" onclick="refreshResultList()"/>
 
   <div id="errorBlock">
   </div>

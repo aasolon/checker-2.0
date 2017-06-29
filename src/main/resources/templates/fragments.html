@@ -8,9 +8,10 @@
 
   <div id="resultlist" th:fragment="resultlist" th:unless="${#lists.isEmpty(resultList)}">
     <h4>Результаты проверки решений</h4>
-    <table border="1">
+    <table border="1px">
       <thead>
         <tr>
+          <th>#</th>
           <th>Дата</th>
           <th>Язык</th>
           <th>Результат проверки</th>
@@ -20,9 +21,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="result : ${resultList}">
+        <tr th:each="result,iter : ${resultList}">
+          <td th:text="${iter.index + 1}"></td>
           <td th:text="${result.timestamp}"></td>
-          <td th:text="${result.language}"></td>
+          <td th:text="${result.langName}"></td>
           <td th:text="${result.verdict}"></td>
           <td th:text="${result.testNumber}"></td>
           <td th:text="${result.runtime}"></td>
@@ -34,9 +36,9 @@
 
   <div id="errorlist" th:fragment="errorlist" th:unless="${#lists.isEmpty(errorList)}" style="color:red">
     <h4>Что-то пошло не так:</h4>
-    <table>
+    <table class="errorlist">
       <tr th:each="error : ${errorList}">
-        <td th:text="${error}"></td>
+        <td class="errorlist" th:text="${error}"></td>
       </tr>
     </table>
   </div>

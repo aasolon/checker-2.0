@@ -29,7 +29,10 @@ CREATE TABLE Result (
   Team_Id BIGINT CONSTRAINT fk_Result_Team REFERENCES Team,
   Tstamp TIMESTAMP,
   Lang_Id BIGINT CONSTRAINT fk_Result_Lang REFERENCES Language,
-  Result VARCHAR(255),
+  Verdict VARCHAR(255),
   SourceCode CLOB,
+  TestNumber INT,
+  Runtime DECIMAL,
+  Memory VARCHAR(255),
   OosKey BIGINT
 );

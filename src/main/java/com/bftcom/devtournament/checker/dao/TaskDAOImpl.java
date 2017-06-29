@@ -10,10 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author a.solonshchikov
- *         Date: 28.06.2017
- */
 @Repository
 public class TaskDAOImpl implements TaskDAO {
 
@@ -21,7 +17,7 @@ public class TaskDAOImpl implements TaskDAO {
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Override
-  public Task finById(long id) {
+  public Task findById(long id) {
     Map<String, Object> params = new HashMap<>();
     params.put("id", id);
     String sql = "SELECT * FROM Task WHERE id=:id";

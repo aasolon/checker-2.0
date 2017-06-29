@@ -24,13 +24,13 @@ public class HtmlParser {
       String testNumber = oosResultEl.select("td[class=test]").first().text();
       String runtime = oosResultEl.select("td[class=runtime]").first().text();
       String memory = oosResultEl.select("td[class=memory]").first().text();
-      OosResult oosResult = new OosResult(
-          Long.parseLong(id),
-          verdict,
-          StringUtils.isNotEmpty(testNumber) ? Integer.parseInt(testNumber) : null,
-          StringUtils.isNotEmpty(runtime) ? new BigDecimal(runtime) : null,
-          StringUtils.defaultIfEmpty(memory, null)
-      );
+
+      OosResult oosResult = new OosResult();
+      oosResult.setId(Long.parseLong(id));
+      oosResult.setVerdict(verdict);
+      oosResult.setTestNumber(StringUtils.isNotEmpty(testNumber) ? Integer.parseInt(testNumber) : null);
+      oosResult.setRuntime(StringUtils.isNotEmpty(runtime) ? new BigDecimal(runtime) : null);
+      oosResult.setMemory(StringUtils.defaultIfEmpty(memory, null));
       oosResultList.add(oosResult);
     }
 

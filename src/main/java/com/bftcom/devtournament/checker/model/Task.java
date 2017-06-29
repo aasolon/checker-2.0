@@ -1,7 +1,6 @@
 package com.bftcom.devtournament.checker.model;
 
 import lombok.Data;
-import lombok.Setter;
 
 @Data
 public class Task {
