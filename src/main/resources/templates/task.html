@@ -52,51 +52,53 @@
   </script>
 </head>
 <body>
-  <input id="taskId" type="hidden" th:value="${task.id}"/>
-  <input id="langId" type="hidden" th:value="1"/>
-  <h2 th:text="${task.name}">Задание 1</h2>
-  <p th:utext="${task.description}">Описание задания</p>
-  <h4>Исходные данные</h4>
-  <p th:utext="${task.initialData}">Описание исходных данных</p>
-  <h4>Результат</h4>
-  <p th:utext="${task.result}">Описание результата</p>
-  <h4>Пример</h4>
-  <table>
-    <thead>
-      <tr>
-        <th>Исходные данные</th>
-        <th>Результат</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td th:utext="${task.exampleInitialData}">0</td>
-        <td th:utext="${task.exampleResult}">1</td>
-      </tr>
-    </tbody>
-  </table>
+  <div id="container">
+    <input id="taskId" type="hidden" th:value="${task.id}"/>
+    <input id="langId" type="hidden" th:value="1"/>
+    <h2 th:text="${task.name}">Задание 1</h2>
+    <p th:utext="${task.description}">Описание задания</p>
+    <h4>Исходные данные</h4>
+    <p th:utext="${task.initialData}">Описание исходных данных</p>
+    <h4>Результат</h4>
+    <p th:utext="${task.result}">Описание результата</p>
+    <h4>Пример</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Исходные данные</th>
+          <th>Результат</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td th:utext="${task.exampleInitialData}">0</td>
+          <td th:utext="${task.exampleResult}">1</td>
+        </tr>
+      </tbody>
+    </table>
 
 
-          
-  <p>Token:</p>
-  <input id="token" type="text" size="50"/>
-  <p>Язык:</p>
-  <select id="lang">
-    <option th:each="lang : ${langList}"
-            th:value="${lang.id}"
-            th:text="${lang.name}"></option>
-  </select>
-  <p>Исходный код решения (не более 64 КБ):</p>
-  <textarea id="sourceCode" rows="10" cols="100"></textarea>
-  <br/>
-  <br/>
-  <input type="submit" value="Отправить" onclick="submitResult()"/>
-  <input type="submit" value="Обновить результаты" onclick="refreshResultList()"/>
 
-  <div id="errorBlock">
-  </div>
+    <p>Token:</p>
+    <input id="token" type="text" size="50" width="100%"/>
+    <p>Язык:</p>
+    <select id="lang">
+      <option th:each="lang : ${langList}"
+              th:value="${lang.id}"
+              th:text="${lang.name}"></option>
+    </select>
+    <p>Исходный код решения (не более 64 КБ):</p>
+    <textarea id="sourceCode" rows="10" cols="100"></textarea>
+    <br/>
+    <br/>
+    <input type="submit" value="Отправить" onclick="submitResult()"/>
+    <input type="submit" value="Обновить результаты" onclick="refreshResultList()"/>
 
-  <div id="resultBlock">
+    <div id="errorBlock">
+    </div>
+
+    <div id="resultBlock">
+    </div>
   </div>
 </body>
 </html>

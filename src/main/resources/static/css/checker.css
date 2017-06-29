@@ -1,3 +1,8 @@
+#container {
+  width: 70%;
+  margin: 0 auto;
+}
+
 table {
   border-collapse: collapse;
 }
@@ -10,6 +15,6 @@ td, th {
   padding: 3px;
 }
 
-table.errorlist, td.errorlist {
+table.errorlist, td.errorlist, table.tasklist, td.tasklist {
   border: none;
 }

@@ -3,25 +3,28 @@
 <head>
   <meta charset="UTF-8"/>
   <title>tasklist</title>
+  <link th:href="@{/css/checker.css}" rel="stylesheet"/>
 </head>
 <body>
- 
-<table th:each="task : ${taskList}">
-  <tr>
-    <td>
-      <h3 th:text="${task.name}">Задание 1</h3>
-      <p th:utext="${task.description}">Описание задания</p>
-      <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
-    </td>
-  </tr>
-  <tr th:remove="all">
-    <td>
-      <h3 th:text="${task.name}">Задание 2</h3>
-      <p th:utext="${task.description}">Описание задания</p>
-      <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
-    </td>
-  </tr>
-</table>
+
+  <div id="container">
+    <table th:each="task : ${taskList}" class="tasklist">
+      <tr>
+        <td class="tasklist">
+          <h3 th:text="${task.name}">Задание 1</h3>
+          <p th:utext="${task.description}">Описание задания</p>
+          <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+        </td>
+      </tr>
+      <tr th:remove="all">
+        <td>
+          <h3 th:text="${task.name}">Задание 2</h3>
+          <p th:utext="${task.description}">Описание задания</p>
+          <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+        </td>
+      </tr>
+    </table>
+  </div>
 
 </body>
 </html>
