@@ -21,6 +21,19 @@ Quick start:
 </Context>
 ```
 
+Разаботчикам:
+1) Используемый стэк технологий:
+  - Spring Boot
+  - Spring MVC
+  - Thymeleaf
+  - H2 Database
+  - Apache HttpClient (+Fluent API +HttpMime)
+  - Jsoup
+  - Lombok
+2) Т.к. в проекте исп-ся либа lombok для автогенерации геттеров, сеттеров и другого boilerplate кода, то Idea нужно настроить:
+  - Подрубить галку "Enable annotation processing" в Build, Execution, Deployment -> Compiler -> Annotation Processors
+  - установить Lombok плагин
+
 TODO:
 1) Exception handling
 2) Украсить интерфейс
