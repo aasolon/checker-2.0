@@ -1,7 +1,7 @@
 # checker-2.0
 BFT devtournament checker
 
-Quick start:
+**Quick start:**
 1) gradlew build
 Автоматически скачается грэдл нужной версии и сбилдит варник checker-2.0.war в build/libs. Варник является униварсальным, поэтому его можно сразу запускать с помощью java -jar (поднимется встроенный томкат) или закинуть его в любой application server на ваш вкус.
 3) Положить рядом с варником application.properties (по умолчанию используется application.properties внутри варника). Для автоматического создания БД (если еще не существует) заполнить url, username и password для датасурса.
@@ -9,7 +9,7 @@ Quick start:
 3) java -jar checker-2.0.war
 4) Готово! Таким образом автоматически создастся и заполнится БД, и поднимется встроенный томкат (порт по умолчанию 8080)
 
-Бонусы:
+**Бонусы:**
 1) Есть возможность поднять вместе с веб-приложением TCP-server для подключения к БД с помощью вашего любимого клиента. См. h2.tcp.enabled=true
 2) Есть возможность поднять вместе с веб-приложением web-консоль (порт по умолчанию 8082) для работы с БД прямо в браузере. См. h2.web.enabled=true
 3) Есть возможность включить логирование. См. раздел # Logging в application.properties.
@@ -21,7 +21,7 @@ Quick start:
 </Context>
 ```
 
-Разаботчикам:
+**Разаботчикам:**
 1) Используемый стэк технологий:
   - Spring Boot
   - Spring MVC
@@ -34,6 +34,6 @@ Quick start:
   - Подрубить галку "Enable annotation processing" в Build, Execution, Deployment -> Compiler -> Annotation Processors
   - установить Lombok плагин
 
-TODO:
+**TODO:**
 1) Exception handling
 2) Украсить интерфейс
