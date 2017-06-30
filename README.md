@@ -32,7 +32,7 @@ BFT devtournament checker
   - Lombok
 2) Т.к. в проекте исп-ся либа lombok для автогенерации геттеров, сеттеров и другого boilerplate кода, то IDEA нужно настроить:
   - Подрубить галку "Enable annotation processing" в Build, Execution, Deployment -> Compiler -> Annotation Processors
-  - установить Lombok плагин
+  - Установить Lombok плагин
 3) В проект включен spring-boot-devtools, поэтому при запуске из IDEA также запускается LiverReload server, который постоянно мониторит ресурсы из build-path (т.е. html, css, js и т.д.) на изменения и позволяет передавать их браузеру с настроенной автоперезагрузкой. Для этого необходимо поставить плагин для браузера http://livereload.com/extensions/. А чтобы изменения попадали в build-path, проект постоянно нужно ребилдить в IDEA, что не всегда удобно, поэтому можно подкрутить IDEA, чтобы она автоматичски ребилдила при любом изменении кода https://www.mkyong.com/spring-boot/intellij-idea-spring-boot-template-reload-is-not-working/.
 
 **TODO:**
