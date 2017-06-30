@@ -54,7 +54,6 @@
 <body>
   <div id="container">
     <input id="taskId" type="hidden" th:value="${task.id}"/>
-    <input id="langId" type="hidden" th:value="1"/>
     <h2 th:text="${task.name}">Задание 1</h2>
     <p th:utext="${task.description}">Описание задания</p>
     <h4>Исходные данные</h4>
@@ -82,7 +81,7 @@
     <p>Token:</p>
     <input id="token" type="text" size="50" width="100%"/>
     <p>Язык:</p>
-    <select id="lang">
+    <select id="langId">
       <option th:each="lang : ${langList}"
               th:value="${lang.id}"
               th:text="${lang.name}"></option>

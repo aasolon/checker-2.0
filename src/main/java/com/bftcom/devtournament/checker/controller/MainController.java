@@ -78,4 +78,10 @@ public class MainController {
     mav.addObject("resultList", resultList);
     return mav;
   }
+
+  @RequestMapping("/result/{id}")
+  public String result(@PathVariable("id") long id, Model model) {
+    model.addAttribute("result", service.findResultById(id).sourceCode);
+    return "result";
+  }
 }

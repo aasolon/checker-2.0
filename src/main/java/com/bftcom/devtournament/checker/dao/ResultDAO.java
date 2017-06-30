@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ResultDAO {
   List<Result> findByTaskIdAndTeamId(long taskId, long teamId);
+  Result findById(long id);
   void saveResult(Result result);
   void update(Result result);
 }

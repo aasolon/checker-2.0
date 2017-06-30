@@ -44,6 +44,10 @@ public class MainService {
     return langDao.findAll();
   }
 
+  public Result findResultById(long id) {
+    return resultDao.findById(id);
+  }
+
   public List<Result> refreshResultList(RequestData requestData) {
     Task task = findTaskById(requestData.getTaskId());
     Team team = teamDao.findByToken(requestData.getToken());
@@ -59,6 +63,7 @@ public class MainService {
         resultDao.update(result);
       }
     }
+    Collections.reverse(resultList);
     return resultList;
   }
 

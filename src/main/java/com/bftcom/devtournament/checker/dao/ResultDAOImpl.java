@@ -40,7 +40,15 @@ public class ResultDAOImpl implements ResultDAO {
         "FROM Result r " +
         "LEFT JOIN Language l on l.Id = r.Lang_Id " +
         "WHERE Task_Id = :task_id AND Team_Id = :team_id ORDER BY Id";
-    return jdbcTemplate.query(sql, params, getResultRowMapper());
+    return jdbcTemplate.query(sql, params, getResultRowMapper(true));
+  }
+
+  @Override
+  public Result findById(long id) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("id", id);
+    String sql = "SELECT * FROM Result WHERE id=:id";
+    return jdbcTemplate.queryForObject(sql, params, getResultRowMapper(false));
   }
 
   private static Map<String, Object> getSqlParamByModel(Result result) {
@@ -58,7 +66,7 @@ public class ResultDAOImpl implements ResultDAO {
     return params;
   }
 
-  private RowMapper<Result> getResultRowMapper() {
+  private RowMapper<Result> getResultRowMapper(boolean langName) {
     return (rs, rowNum) -> {
       Result result = new Result();
       result.setId(rs.getLong("Id"));
@@ -66,7 +74,8 @@ public class ResultDAOImpl implements ResultDAO {
       result.setTeamId(rs.getLong("Team_Id"));
       result.setTimestamp(rs.getTimestamp("Tstamp"));
       result.setLangId(rs.getLong("Lang_Id"));
-      result.setLangName(rs.getString("langName"));
+      if (langName)
+        result.setLangName(rs.getString("langName"));
       result.setVerdict(rs.getString("Verdict"));
       result.setSourceCode(rs.getString("SourceCode"));
       int testNumber = rs.getInt("TestNumber");

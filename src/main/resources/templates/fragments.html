@@ -21,8 +21,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="result,iter : ${resultList}">
-          <td th:text="${iter.index + 1}"></td>
+        <tr th:each="result : ${resultList}">
+          <td>
+            <a th:href="@{/result/__${result.id}__}" th:text="${result.id}"></a>
+          </td>
           <td th:text="${result.timestamp}"></td>
           <td th:text="${result.langName}"></td>
           <td th:text="${result.verdict}"></td>

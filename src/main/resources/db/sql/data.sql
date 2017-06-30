@@ -37,3 +37,9 @@ INSERT INTO Language VALUES (
   'Java 8',
   32
 );
+
+INSERT INTO Language VALUES (
+  2,
+  'Python 3.4',
+  35
+);
