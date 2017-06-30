@@ -20,3 +20,7 @@ Quick start:
   <Environment name="spring.config.location" value="file:<путь до application.properties>" type="java.lang.String"/>
 </Context>
 ```
+
+TODO:
+1) Exception handling
+2) Украсить интерфейс
