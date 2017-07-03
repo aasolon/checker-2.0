@@ -8,9 +8,9 @@
 <body>
 
   <div id="container">
-    <table th:each="task : ${taskList}" class="tasklist">
+    <table th:each="task : ${taskList}" class="woBorder">
       <tr>
-        <td class="tasklist">
+        <td class="woBorder">
           <h3 th:text="${task.name}">Задание 1</h3>
           <p th:utext="${task.description}">Описание задания</p>
           <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>

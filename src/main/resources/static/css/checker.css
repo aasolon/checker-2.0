@@ -15,6 +15,6 @@ td, th {
   padding: 3px;
 }
 
-table.errorlist, td.errorlist, table.tasklist, td.tasklist {
+table.woBorder, td.woBorder {
   border: none;
 }

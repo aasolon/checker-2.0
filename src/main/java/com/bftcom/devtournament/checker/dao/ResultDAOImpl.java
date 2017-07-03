@@ -2,6 +2,7 @@ package com.bftcom.devtournament.checker.dao;
 
 import com.bftcom.devtournament.checker.model.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,8 @@ import java.util.Map;
 public class ResultDAOImpl implements ResultDAO {
   @Autowired
   private NamedParameterJdbcTemplate jdbcTemplate;
+  @Value("${checker.resultlist_limit:-1}")
+  private String resultListLimit;
   
   @Override
   public void saveResult(Result result) {
@@ -35,11 +38,14 @@ public class ResultDAOImpl implements ResultDAO {
     Map<String, Object> params = new HashMap<>();
     params.put("task_id", taskId);
     params.put("team_id", teamId);
+    params.put("limit", resultListLimit);
     String sql = "SELECT r.Id, r.Task_Id, r.Team_Id, r.Tstamp, r.Lang_Id, l.Name langName, r.Verdict, r.SourceCode, " +
         "r.TestNumber, r.Runtime, r.Memory, r.OosKey " +
         "FROM Result r " +
         "LEFT JOIN Language l on l.Id = r.Lang_Id " +
-        "WHERE Task_Id = :task_id AND Team_Id = :team_id ORDER BY Id";
+        "WHERE Task_Id = :task_id AND Team_Id = :team_id " +
+        "ORDER BY Tstamp DESC " +
+        "LIMIT :limit";
     return jdbcTemplate.query(sql, params, getResultRowMapper(true));
   }
 

@@ -1,12 +1,17 @@
 package com.bftcom.devtournament.checker.controller;
 
+import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.Result;
+import com.bftcom.devtournament.checker.model.Task;
 import com.bftcom.devtournament.checker.service.MainService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private MainService service;
@@ -36,7 +42,10 @@ public class MainController {
 
   @RequestMapping("/tasklist/{id}")
   public String task(@PathVariable("id") long id, Model model) {
-    model.addAttribute("task", service.findTaskById(id));
+    Task task = service.findTaskById(id);
+    if (task == null)
+      return "error/404";
+    model.addAttribute("task", task);
     model.addAttribute("langList", service.findAllLangs());
     return "task";
   }
@@ -45,18 +54,10 @@ public class MainController {
   public ModelAndView submitResult(@Valid @RequestBody RequestSubmitData submitData, Errors errors, Model model) throws IOException {
     if (errors.hasErrors()) {
       List<String> errorList = errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
-      ModelAndView mav = new ModelAndView("fragments :: errorlist");
-      mav.addObject("errorList", errorList);
-      return mav;
+      throw new UserException(errorList);
     }
 
-    List<String> errorList = service.submitResult(submitData);
-
-    if (!errorList.isEmpty()) {
-      ModelAndView mav = new ModelAndView("fragments :: errorlist");
-      mav.addObject("errorList", errorList);
-      return mav;
-    }
+    service.submitResult(submitData);
 
     List<Result> resultList = service.refreshResultList(submitData);
     ModelAndView mav = new ModelAndView("fragments :: resultlist");
@@ -68,9 +69,7 @@ public class MainController {
   public ModelAndView refreshResultList(@Valid @RequestBody RequestData requestData, Errors errors) throws IOException {
     if (errors.hasErrors()) {
       List<String> errorList = errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
-      ModelAndView mav = new ModelAndView("fragments :: errorlist");
-      mav.addObject("errorList", errorList);
-      return mav;
+      throw new UserException(errorList);
     }
     
     List<Result> resultList = service.refreshResultList(requestData);
@@ -83,5 +82,21 @@ public class MainController {
   public String result(@PathVariable("id") long id, Model model) {
     model.addAttribute("result", service.findResultById(id).sourceCode);
     return "result";
+  }
+
+  @ExceptionHandler(UserException.class)
+  public ModelAndView handleError(UserException ex) {
+    log.error("Ошибка удаленного вызова", ex);
+    ModelAndView mav = new ModelAndView("fragments :: errorlist");
+    mav.addObject("errorList", ex.getErrorMsgList());
+    return mav;
+  }
+
+  @ExceptionHandler(Throwable.class)
+  public ModelAndView handleError(Throwable ex) {
+    log.error("Ошибка удаленного вызова", ex);
+    ModelAndView mav = new ModelAndView("fragments :: errorlist");
+    mav.addObject("errorList", "Ошибка удаленного вызова, обратитесь к администратору системы");
+    return mav;
   }
 }

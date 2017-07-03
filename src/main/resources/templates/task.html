@@ -25,6 +25,16 @@
           }
           if (html["id"] == "errorlist")
             $("#errorBlock").html(responseText);
+        },
+        error: function() {
+          $("#errorBlock").html(
+              '<h4>Что-то пошло не так:</h4>' +
+              '<table class="woBorder">' +
+              ' <tr>' +
+              '   <td class="woBorder">Ошибка при получении ответа от сервера, обратиесть к администратору</td>' +
+              ' </tr>' +
+              '</table>'
+          );
         }
       });
     }
@@ -46,6 +56,16 @@
           }
           if (html["id"] == "errorlist")
             $("#errorBlock").html(responseText);
+        },
+        error: function() {
+          $("#errorBlock").html(
+              '<h4>Что-то пошло не так:</h4>' +
+              '<table class="woBorder">' +
+              ' <tr>' +
+              '   <td class="woBorder">Ошибка при получении ответа от сервера, обратиесть к администратору</td>' +
+              ' </tr>' +
+              '</table>'
+          );
         }
       });
     }
@@ -93,7 +113,7 @@
     <input type="submit" value="Отправить" onclick="submitResult()"/>
     <input type="submit" value="Обновить результаты" onclick="refreshResultList()"/>
 
-    <div id="errorBlock">
+    <div id="errorBlock" style="color:red">
     </div>
 
     <div id="resultBlock">

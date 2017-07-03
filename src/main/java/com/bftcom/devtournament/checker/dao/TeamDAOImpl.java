@@ -2,6 +2,7 @@ package com.bftcom.devtournament.checker.dao;
 
 import com.bftcom.devtournament.checker.model.Team;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -27,10 +28,14 @@ public class TeamDAOImpl implements TeamDAO {
 
   @Override
   public Team findByToken(String token) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("token", token);
-    String sql = "SELECT * FROM Team WHERE token=:token";
-    return jdbcTemplate.queryForObject(sql, params, getTeamRowMapper());
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put("token", token);
+      String sql = "SELECT * FROM Team WHERE token=:token";
+      return jdbcTemplate.queryForObject(sql, params, getTeamRowMapper());
+    } catch (EmptyResultDataAccessException ex) {
+      return null;
+    }
   }
 
   @Override
