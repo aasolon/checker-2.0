@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Getter
 @Setter
-public class RequestSubmitData extends RequestData {
+public class SubmitRequestData extends RequestData {
   long langId;
   @NotEmpty(message = "Не заполнено поле \"Исходный код решения\"")
   String sourceCode;

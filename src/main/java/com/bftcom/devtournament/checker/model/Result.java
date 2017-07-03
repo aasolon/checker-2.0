@@ -7,16 +7,16 @@ import java.sql.Timestamp;
 
 @Data
 public class Result {
-  public long id;
-  public long taskId;
-  public long teamId;
-  public Timestamp timestamp;
-  public long langId;
-  public String langName;
-  public String verdict;
-  public String sourceCode;
-  public Integer testNumber;
-  public BigDecimal runtime;
-  public String memory;
+  private long id;
+  private long taskId;
+  private long teamId;
+  private Timestamp timestamp;
+  private long langId;
+  private String langName;
+  private String verdict;
+  private String sourceCode;
+  private Integer testNumber;
+  private BigDecimal runtime;
+  private String memory;
   private long oosKey;
 }

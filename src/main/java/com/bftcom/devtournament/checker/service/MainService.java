@@ -1,7 +1,7 @@
 package com.bftcom.devtournament.checker.service;
 
 import com.bftcom.devtournament.checker.controller.RequestData;
-import com.bftcom.devtournament.checker.controller.RequestSubmitData;
+import com.bftcom.devtournament.checker.controller.SubmitRequestData;
 import com.bftcom.devtournament.checker.dao.LangDAO;
 import com.bftcom.devtournament.checker.dao.ResultDAO;
 import com.bftcom.devtournament.checker.dao.TaskDAO;
@@ -65,7 +65,7 @@ public class MainService {
     return resultList;
   }
 
-  public void submitResult(RequestSubmitData submitData) throws IOException {
+  public void submitResult(SubmitRequestData submitData) throws IOException {
     Team team = teamDao.findByToken(submitData.getToken());
     if (team == null)
       throw new UserException("Не найдена команда с указанным Token");
@@ -83,7 +83,7 @@ public class MainService {
     }
   }
 
-  private Result createResult(RequestSubmitData submitData, Team team, OosResult oosResult) {
+  private Result createResult(SubmitRequestData submitData, Team team, OosResult oosResult) {
     Result result = new Result();
     result.setTaskId(submitData.getTaskId());
     result.setTeamId(team.getId());

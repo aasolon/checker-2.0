@@ -36,3 +36,26 @@ CREATE TABLE Result (
   Memory VARCHAR(255),
   OosKey BIGINT
 );
+
+CREATE TABLE TestCase (
+  Id IDENTITY,
+  Team_Id BIGINT CONSTRAINT fk_TestCase_Team REFERENCES Team,
+  Task_Id BIGINT CONSTRAINT fk_TestCase_Task REFERENCES Task,
+  Input CLOB
+);
+
+CREATE TABLE TestCaseResult (
+  Id IDENTITY,
+  Team_Id BIGINT CONSTRAINT fk_TestCaseResult_Team REFERENCES Team,
+  Task_Id BIGINT CONSTRAINT fk_TestCaseResult_Task REFERENCES Task,
+  TestCase_Id BIGINT CONSTRAINT fk_TestCaseResult_TestCase REFERENCES TestCase,
+  Result_Id BIGINT CONSTRAINT fk_TestCaseResult_Result REFERENCES Result,
+  Output CLOB
+);
+
+CREATE TABLE TestVerdict (
+  Id IDENTITY,
+  Team_Id BIGINT CONSTRAINT fk_TestVerdict_Team REFERENCES Team,
+  Task_Id BIGINT CONSTRAINT fk_TestVerdict_Task REFERENCES Task,
+  Result_Id BIGINT CONSTRAINT fk_TestVerdict_Result REFERENCES Result
+);
