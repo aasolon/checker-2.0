@@ -23,14 +23,14 @@
       <tbody>
         <tr th:each="result : ${resultList}">
           <td>
-            <a th:href="@{/result/__${result.id}__}" th:text="${result.id}"></a>
+            <a th:href="@{/result/__${result.id}__(token=${token})}" th:text="${result.id}"></a>
           </td>
           <td th:text="${result.timestamp}"></td>
           <td th:text="${result.langName}"></td>
           <td th:switch="${result.verdict}">
             <span th:case="'Accepted'" class="accept">Принято</span>
             <span th:case="'Compilation error'">
-              <a th:href="@{/compilation-error/__${result.id}__}">Ошибка компиляции</a>
+              <a th:href="@{/compilation-error/__${result.id}__(token=${token})}">Ошибка компиляции</a>
             </span>
             <span th:case="'Wrong answer'" class="error">Ответ неверный</span>
             <span th:case="'Time limit exceeded'" class="error">Превышено время</span>

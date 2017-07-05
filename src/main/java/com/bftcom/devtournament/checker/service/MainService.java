@@ -144,7 +144,7 @@ public class MainService {
     return testVerdictDao.findByTeamIdAndTaskId(team.getId(), taskId);
   }
 
-  private Team findTeamByToken(String token) {
+  public Team findTeamByToken(String token) {
     Team team = teamDao.findByToken(token);
     if (team == null)
       throw new UserException("Не найдена команда с указанным Token");

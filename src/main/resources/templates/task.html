@@ -74,8 +74,8 @@
 <body>
   <div id="container">
     <input id="taskId" type="hidden" th:value="${task.id}"/>
-    <h2 th:text="${task.name}">Задание 1</h2>
-    <p th:utext="${task.description}">Описание задания</p>
+    <h2 th:unless="${#strings.isEmpty(task.name)}" th:text="${task.name}">Задание 1</h2>
+    <p th:unless="${#strings.isEmpty(task.description)}" th:utext="${task.description}">Описание задания</p>
     <h4 th:unless="${#strings.isEmpty(task.initialData)}">Исходные данные</h4>
     <p th:unless="${#strings.isEmpty(task.initialData)}" th:utext="${task.initialData}">Описание исходных данных</p>
     <h4 th:unless="${#strings.isEmpty(task.result)}">Результат</h4>

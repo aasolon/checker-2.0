@@ -3,6 +3,7 @@ package com.bftcom.devtournament.checker.controller;
 import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.Result;
 import com.bftcom.devtournament.checker.model.Task;
+import com.bftcom.devtournament.checker.model.Team;
 import com.bftcom.devtournament.checker.model.TestCase;
 import com.bftcom.devtournament.checker.service.MainService;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,7 @@ public class MainController {
   }
 
   @RequestMapping("/submit-result")
-  public ModelAndView submitResult(@Valid @RequestBody SubmitRequestData submitData, Errors errors, Model model) throws IOException {
+  public ModelAndView submitResult(@Valid @RequestBody SubmitRequestData submitData, Errors errors) throws IOException {
     if (errors.hasErrors()) {
       List<String> errorList = errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
       throw new UserException(errorList);
@@ -67,6 +68,7 @@ public class MainController {
     List<Result> resultList = service.refreshResultList(submitData);
     ModelAndView mav = new ModelAndView("fragments :: resultlist");
     mav.addObject("resultList", resultList);
+    mav.addObject("token", submitData.getToken());
     return mav;
   }
 
@@ -80,17 +82,22 @@ public class MainController {
     List<Result> resultList = service.refreshResultList(requestData);
     ModelAndView mav = new ModelAndView("fragments :: resultlist");
     mav.addObject("resultList", resultList);
+    mav.addObject("token", requestData.getToken());
     return mav;
   }
 
   @RequestMapping("/result/{id}")
-  public String showResultSourceCode(@PathVariable("id") long taskId, Model model) {
+  public String showResultSourceCode(@PathVariable("id") long taskId,
+                                     @RequestParam(value = "token", required = false) String token, Model model) {
+    service.findTeamByToken(token);
     model.addAttribute("result", service.findResultById(taskId).getSourceCode());
     return "result";
   }
 
   @RequestMapping("/compilation-error/{id}")
-  public String showResultCompilationError(@PathVariable("id") long taskId, Model model) {
+  public String showResultCompilationError(@PathVariable("id") long taskId,
+                                           @RequestParam(value = "token", required = false) String token, Model model) {
+    service.findTeamByToken(token);
     model.addAttribute("compilationError", service.findResultById(taskId).getCompilationError());
     return "compilation-error";
   }
