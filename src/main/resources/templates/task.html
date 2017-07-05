@@ -76,12 +76,12 @@
     <input id="taskId" type="hidden" th:value="${task.id}"/>
     <h2 th:text="${task.name}">Задание 1</h2>
     <p th:utext="${task.description}">Описание задания</p>
-    <h4>Исходные данные</h4>
-    <p th:utext="${task.initialData}">Описание исходных данных</p>
-    <h4>Результат</h4>
-    <p th:utext="${task.result}">Описание результата</p>
-    <h4>Пример</h4>
-    <table>
+    <h4 th:unless="${#strings.isEmpty(task.initialData)}">Исходные данные</h4>
+    <p th:unless="${#strings.isEmpty(task.initialData)}" th:utext="${task.initialData}">Описание исходных данных</p>
+    <h4 th:unless="${#strings.isEmpty(task.result)}">Результат</h4>
+    <p th:unless="${#strings.isEmpty(task.result)}" th:utext="${task.result}">Описание результата</p>
+    <h4 th:unless="${#strings.isEmpty(task.exampleInitialData)}">Пример</h4>
+    <table th:unless="${#strings.isEmpty(task.exampleInitialData)}">
       <thead>
         <tr>
           <th>Исходные данные</th>
