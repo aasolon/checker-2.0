@@ -30,6 +30,7 @@ BFT devtournament checker
   - H2 Database
   - Apache HttpClient (+Fluent API +HttpMime)
   - Jsoup
+  - Javaparser (https://github.com/javaparser/javaparser)
   - Lombok
 2) Т.к. в проекте исп-ся либа lombok для автогенерации геттеров, сеттеров и другого boilerplate кода, то IDEA нужно настроить:
   - Подрубить галку "Enable annotation processing" в Build, Execution, Deployment -> Compiler -> Annotation Processors
