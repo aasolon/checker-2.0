@@ -35,7 +35,8 @@ CREATE TABLE Result (
   TestNumber INT,
   Runtime DECIMAL,
   Memory VARCHAR(255),
-  OosKey BIGINT
+  OosKey BIGINT,
+  DisabledForTest BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE TestCase (

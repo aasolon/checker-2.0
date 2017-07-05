@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -24,4 +23,5 @@ public class TestCase {
   private Map<Long, TestCaseResult> resultList;
   private Map<Long, Integer> testVerdictList;
   private long resultIdWithVerdict;
+  private long deleteId;
 }

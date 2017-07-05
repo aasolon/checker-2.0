@@ -104,9 +104,9 @@ public class MainService {
     }
   }
 
-  public void deleteTestCase(TestCase testCase) {
-    Team team = findTeamByToken(testCase.getToken());
-    testCaseDao.delete(testCase);
+  public void deleteTestCase(String token, long testCaseId) {
+    Team team = findTeamByToken(token);
+    testCaseDao.delete(testCaseId);
   }
 
   public List<TestCase> refreshTestCaseList(String token, long taskId, List<Result> resultList) {

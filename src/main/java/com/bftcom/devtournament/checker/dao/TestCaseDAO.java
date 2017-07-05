@@ -9,5 +9,5 @@ public interface TestCaseDAO {
   List<TestCase> findAll();
   List<TestCase> findByTeamAndTaskId(long teamId, long taskId);
   void save(TestCase testCase);
-  void delete(TestCase testCase);
+  void delete(long id);
 }

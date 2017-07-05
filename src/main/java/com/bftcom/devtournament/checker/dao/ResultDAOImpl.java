@@ -61,6 +61,7 @@ public class ResultDAOImpl implements ResultDAO {
         "FROM Result r " +
         "LEFT JOIN Language l on l.Id = r.Lang_Id " +
         "WHERE r.Task_Id = :task_id AND (UPPER(r.Verdict) = UPPER('Accepted') OR UPPER(r.Verdict) = UPPER('Wrong answer')) " +
+        "AND r.DisabledForTest = FALSE " +
         "ORDER BY r.Id";
     return jdbcTemplate.query(sql, params, getResultRowMapper(false));
   }

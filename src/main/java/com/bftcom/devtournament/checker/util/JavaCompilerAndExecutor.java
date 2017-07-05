@@ -12,12 +12,11 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-/**
- * @author a.solonshchikov
- *         Date: 04.07.2017
- */
 public class JavaCompilerAndExecutor {
   private static final Logger log = LoggerFactory.getLogger(JavaCompilerAndExecutor.class);
 
@@ -73,13 +72,13 @@ public class JavaCompilerAndExecutor {
   }
 
   private static String getProcessOutput(InputStream ins) throws Exception {
-    StringBuilder output = new StringBuilder();
+    List<String> lines = new ArrayList<>();
     String line;
     BufferedReader in = new BufferedReader(new InputStreamReader(ins));
     while ((line = in.readLine()) != null) {
-      output.append(line);
+      lines.add(line);
     }
-    return output.toString();
+    return lines.stream().collect(Collectors.joining("\n"));
   }
 
   private static String removePackage(String sourceCode) {

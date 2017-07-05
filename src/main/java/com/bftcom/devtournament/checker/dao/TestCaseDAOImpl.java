@@ -10,9 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class TestCaseDAOImpl implements TestCaseDAO {
@@ -48,9 +46,9 @@ public class TestCaseDAOImpl implements TestCaseDAO {
   }
 
   @Override
-  public void delete(TestCase testCase) {
-    String sql = "UPDATE TestCase SET Actual = False AND Id = :id";
-    jdbcTemplate.update(sql, new MapSqlParameterSource("id", testCase.getId()));
+  public void delete(long id) {
+    String sql = "UPDATE TestCase SET Actual = False WHERE Id = :id";
+    jdbcTemplate.update(sql, new MapSqlParameterSource("id", id));
   }
 
   private static SqlParameterSource getSqlParamByModel(TestCase testCase) {

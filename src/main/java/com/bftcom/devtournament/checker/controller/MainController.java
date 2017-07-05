@@ -5,7 +5,6 @@ import com.bftcom.devtournament.checker.model.Result;
 import com.bftcom.devtournament.checker.model.Task;
 import com.bftcom.devtournament.checker.model.TestCase;
 import com.bftcom.devtournament.checker.service.MainService;
-import com.bftcom.devtournament.checker.service.OutgoingManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.io.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -135,15 +134,28 @@ public class MainController {
     return "redirect:/test-tasklist/" + taskId;
   }
 
+  @PostMapping(path = "/test-tasklist/{id}", params = "delete")
+  public String deleteTestCase(@PathVariable("id") long taskId, Model model,
+                                    @Validated(TestCase.GroupRefreshTestCase.class) @ModelAttribute TestCase testCase,
+                                    BindingResult bindingResult) throws Exception {
+    if (!bindingResult.hasErrors()) {
+      service.deleteTestCase(testCase.getToken(), testCase.getDeleteId());
+    }
+
+    fillTestModel(taskId, model, testCase);
+
+    return "test-task";
+  }
+
   @PostMapping(path = "/test-tasklist/{id}", params = "refresh")
-  public String refreshTestCaseList(@PathVariable("id") long taslId, Model model,
+  public String refreshTestCaseList(@PathVariable("id") long taskId, Model model,
                                     @Validated(TestCase.GroupRefreshTestCase.class) @ModelAttribute TestCase testCase,
                                     BindingResult bindingResult) throws Exception {
     if (!bindingResult.hasErrors() && testCase.getResultIdWithVerdict() != 0) {
-      service.saveTestVerdict(testCase.getToken(), taslId, testCase.getTestVerdictList(), testCase.getResultIdWithVerdict());
+      service.saveTestVerdict(testCase.getToken(), taskId, testCase.getTestVerdictList(), testCase.getResultIdWithVerdict());
     }
 
-    fillTestModel(taslId, model, testCase);
+    fillTestModel(taskId, model, testCase);
 
     return "test-task";
   }
@@ -165,6 +177,7 @@ public class MainController {
     }
 
     testCase.setResultIdWithVerdict(0);
+    testCase.setDeleteId(0);
 
     return true;
   }

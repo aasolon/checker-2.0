@@ -9,8 +9,21 @@
     function refreshTestCaseList(event) {
       var resultId = event.target.id.substring("testVerdictList".length, event.target.id.length);
       $("#resultIdWithVerdict").val(resultId);
-      document.getElementsByName('refresh')[0].click();
-      $("#resultIdWithVerdict").val("");
+      $("input[name='refresh']")[0].click();
+    }
+
+    function deleteTestCase(event) {
+      if (confirm("Удалить test case?")) {
+        var deleteId = event.target.id.substring("deleteTestCase".length, event.target.id.length);
+        $("#deleteId").val(deleteId);
+        $("#testCaseSubmitForm").submit(function(event) {
+          $("<input/>").attr("type", "hidden").attr("name", "delete")
+              .appendTo("#testCaseSubmitForm");
+          return true;
+        });
+      } else {
+        event.preventDefault();
+      }
     }
   </script>
 </head>
@@ -41,8 +54,9 @@
 
 
 
-  <form action="#" th:action="@{/test-tasklist/__${id}__}" th:object="${testCase}" method="post">
+  <form id="testCaseSubmitForm" action="#" th:action="@{/test-tasklist/__${id}__}" th:object="${testCase}" method="post">
     <input th:field="*{resultIdWithVerdict}" id="resultIdWithVerdict" hidden="true"/>
+    <input th:field="*{deleteId}" id="deleteId" hidden="true"/>
     <p>Token:</p>
     <input th:field="*{token}" id="token" type="text" size="50" width="100%"/>
     <p th:if="${#fields.hasErrors('token')}" th:errors="*{token}" style="color: red">Token Error</p>
@@ -61,12 +75,14 @@
     <table th:unless="${#lists.isEmpty(resultList)}">
       <thead>
         <tr>
+          <th></th>
           <th>Test cases</th>
           <th th:each="result : ${resultList}" th:text="${'Решение #' + result.id}">
             Решение 1
           </th>
         </tr>
         <tr>
+          <th></th>
           <th>Вердикт</th>
           <th th:each="result : ${resultList}">
             <select th:field="*{testVerdictList[__${result.id}__]}" onchange="refreshTestCaseList(event);">
@@ -79,8 +95,15 @@
       </thead>
       <tbody>
         <tr th:each="testCase : ${testCaseList}">
-          <td><pre th:utext="${testCase.input}"></pre></td>
-          <td th:each="result : ${resultList}" th:utext="${testCase.resultList[__${result.id}__]?.output}"></td>
+          <td>
+            <button title="Удалить" style="background: lightcoral" th:id="${'deleteTestCase' + testCase.id}" onclick="deleteTestCase(event);">-</button>
+          </td>
+          <td>
+            <pre th:utext="${testCase.input}"></pre>
+          </td>
+          <td th:each="result : ${resultList}">
+            <pre th:utext="${testCase.resultList[__${result.id}__]?.output}"></pre>
+          </td>
         </tr>
       </tbody>
     </table>

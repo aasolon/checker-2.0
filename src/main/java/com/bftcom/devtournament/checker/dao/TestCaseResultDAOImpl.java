@@ -1,6 +1,5 @@
 package com.bftcom.devtournament.checker.dao;
 
-import com.bftcom.devtournament.checker.model.TestCase;
 import com.bftcom.devtournament.checker.model.TestCaseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,14 +10,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-/**
- * @author a.solonshchikov
- *         Date: 04.07.2017
- */
 @Repository
 public class TestCaseResultDAOImpl implements TestCaseResultDAO {
   @Autowired
