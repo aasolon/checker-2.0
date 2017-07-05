@@ -41,6 +41,8 @@ dependencies {
 	compile('commons-io:commons-io:2.5')
 
 	compile('org.jsoup:jsoup:1.10.3')
+	
+	compile('com.github.javaparser:javaparser-core:3.2.8')
 
 	runtime('org.springframework.boot:spring-boot-devtools')
 

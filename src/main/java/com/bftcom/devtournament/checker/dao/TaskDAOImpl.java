@@ -4,6 +4,7 @@ import com.bftcom.devtournament.checker.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,10 +21,8 @@ public class TaskDAOImpl implements TaskDAO {
   @Override
   public Task findById(long id) {
     try {
-      Map<String, Object> params = new HashMap<>();
-      params.put("id", id);
       String sql = "SELECT * FROM Task WHERE id=:id";
-      return jdbcTemplate.queryForObject(sql, params, getTaskRowMapper());
+      return jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), getTaskRowMapper());
     } catch (EmptyResultDataAccessException ex) {
       return null;
     }

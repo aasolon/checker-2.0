@@ -14,6 +14,7 @@ public class Result {
   private long langId;
   private String langName;
   private String verdict;
+  private String compilationError;
   private String sourceCode;
   private Integer testNumber;
   private BigDecimal runtime;

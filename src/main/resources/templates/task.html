@@ -26,12 +26,12 @@
           if (html["id"] == "errorlist")
             $("#errorBlock").html(responseText);
         },
-        error: function() {
+        error: function(jqXHR) {
           $("#errorBlock").html(
               '<h4>Что-то пошло не так:</h4>' +
               '<table class="woBorder">' +
               ' <tr>' +
-              '   <td class="woBorder">Ошибка при получении ответа от сервера, обратиесть к администратору</td>' +
+              '   <td class="woBorder">Ошибка при получении ответа отсервера (HTTP код ' + jqXHR.status + '), повторите попытку или обратиесть к администратору системы</td>' +
               ' </tr>' +
               '</table>'
           );
@@ -57,12 +57,12 @@
           if (html["id"] == "errorlist")
             $("#errorBlock").html(responseText);
         },
-        error: function() {
+        error: function(jqXHR) {
           $("#errorBlock").html(
               '<h4>Что-то пошло не так:</h4>' +
               '<table class="woBorder">' +
               ' <tr>' +
-              '   <td class="woBorder">Ошибка при получении ответа от сервера, обратиесть к администратору</td>' +
+              '   <td class="woBorder">Ошибка при получении ответа от сервера (HTTP код ' + jqXHR.status + '), повторите попытку или обратиесть к администратору системы</td>' +
               ' </tr>' +
               '</table>'
           );

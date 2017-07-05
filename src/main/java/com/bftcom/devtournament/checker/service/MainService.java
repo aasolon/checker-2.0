@@ -2,18 +2,18 @@ package com.bftcom.devtournament.checker.service;
 
 import com.bftcom.devtournament.checker.controller.RequestData;
 import com.bftcom.devtournament.checker.controller.SubmitRequestData;
-import com.bftcom.devtournament.checker.dao.LangDAO;
-import com.bftcom.devtournament.checker.dao.ResultDAO;
-import com.bftcom.devtournament.checker.dao.TaskDAO;
-import com.bftcom.devtournament.checker.dao.TeamDAO;
+import com.bftcom.devtournament.checker.dao.*;
 import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.*;
+import com.bftcom.devtournament.checker.util.JavaCompilerAndExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class MainService {
@@ -26,6 +26,12 @@ public class MainService {
   private ResultDAO resultDao;
   @Autowired
   private LangDAO langDao;
+  @Autowired
+  private TestCaseDAO testCaseDao;
+  @Autowired
+  private TestCaseResultDAO testCaseResultDao;
+  @Autowired
+  private TestVerdictDAO testVerdictDao;
   @Autowired
   private OutgoingManager outgoingManager;
 
@@ -45,11 +51,13 @@ public class MainService {
     return resultDao.findById(id);
   }
 
+  public List<Result> findResultsByTaskIdAndAccepted(long taskId) {
+    return resultDao.findByTaskIdAndAccepted(taskId);
+  }
+
   public List<Result> refreshResultList(RequestData requestData) throws IOException {
     Task task = findTaskById(requestData.getTaskId());
-    Team team = teamDao.findByToken(requestData.getToken());
-    if (team == null)
-      throw new UserException("Не найдена команда с указанным Token");
+    Team team = findTeamByToken(requestData.getToken());
     List<OosResult> oosResultList = outgoingManager.getOosResultList(task.getOosKey(), team.getOosKey());
     List<Result> resultList = resultDao.findByTaskIdAndTeamId(task.getId(), team.getId());
     for (Result result : resultList) {
@@ -59,6 +67,10 @@ public class MainService {
         result.setTestNumber(oosResult.getTestNumber());
         result.setRuntime(oosResult.getRuntime());
         result.setMemory(oosResult.getMemory());
+        if ("Compilation error".equalsIgnoreCase(oosResult.getVerdict())) {
+          String compilationError = outgoingManager.getCompilationError(team.getJudgetId(), oosResult.getId());
+          result.setCompilationError(compilationError);
+        }
         resultDao.update(result);
       }
     }
@@ -66,9 +78,7 @@ public class MainService {
   }
 
   public void submitResult(SubmitRequestData submitData) throws IOException {
-    Team team = teamDao.findByToken(submitData.getToken());
-    if (team == null)
-      throw new UserException("Не найдена команда с указанным Token");
+    Team team = findTeamByToken(submitData.getToken());
     Lang lang = langDao.findById(submitData.getLangId());
     Task task = findTaskById(submitData.getTaskId());
     OutgoingManager.SubmitResult submitResult = outgoingManager.sumbit(team.getJudgetId(), lang.getOosKey(), task.getOosKey(), submitData.getSourceCode());
@@ -79,11 +89,84 @@ public class MainService {
       List<OosResult> oosResultList = outgoingManager.getOosResultList(task.getOosKey(), team.getOosKey());
       OosResult oosResult = oosResultList.get(0);
       Result result = createResult(submitData, team, oosResult);
-      resultDao.saveResult(result);
+      resultDao.save(result);
     }
   }
 
-  private Result createResult(SubmitRequestData submitData, Team team, OosResult oosResult) {
+  public void saveAndCompileTestCase(TestCase testCase) {
+    Team team = findTeamByToken(testCase.getToken());
+    testCase.setTeamId(team.getId());
+    testCaseDao.save(testCase);
+
+    List<Result> resultList = resultDao.findByTaskIdAndAccepted(testCase.getTaskId());
+    for (Result result : resultList) {
+      createAndSaveTestCaseResult(testCase, result);
+    }
+  }
+
+  public void deleteTestCase(TestCase testCase) {
+    Team team = findTeamByToken(testCase.getToken());
+    testCaseDao.delete(testCase);
+  }
+
+  public List<TestCase> refreshTestCaseList(String token, long taskId, List<Result> resultList) {
+    Team team = findTeamByToken(token);
+
+    List<TestCase> testCaseList = testCaseDao.findByTeamAndTaskId(team.getId(), taskId);
+    for (TestCase testCase : testCaseList) {
+      // сначала вытянем из БД уже вычисленные варианты
+      List<TestCaseResult> testCaseResultList = testCaseResultDao.findByTestCaseId(testCase.getId());
+      Map<Long, TestCaseResult> testCaseResultMap =
+          testCaseResultList.stream().collect(Collectors.toMap(TestCaseResult::getResultId, e -> e));
+
+      // затем проверим не добавились ли новые решения
+      List<Result> notProcessedResultList = resultList.stream()
+          .filter(e -> !testCaseResultMap.containsKey(e.getId())).collect(Collectors.toList());
+      if (!notProcessedResultList.isEmpty()) {
+        for (Result notProcessedResult : notProcessedResultList)
+          testCaseResultMap.put(notProcessedResult.getId(), createAndSaveTestCaseResult(testCase, notProcessedResult));
+      }
+
+      testCase.setResultList(testCaseResultMap);
+    }
+
+    return testCaseList;
+  }
+
+  public void saveTestVerdict(String token, long taskId, Map<Long, Integer> testVerdictList, long resultIdWithVerdict) {
+    Team team = findTeamByToken(token);
+    Integer vredict = testVerdictList.get(resultIdWithVerdict);
+    testVerdictDao.merge(team.getId(), taskId, resultIdWithVerdict, vredict == null ? null : vredict == 1);
+  }
+
+  public Map<Long, Integer> findTestVerdictsByTokenAndTaskId(String token, long taskId) {
+    Team team = findTeamByToken(token);
+    return testVerdictDao.findByTeamIdAndTaskId(team.getId(), taskId);
+  }
+
+  private Team findTeamByToken(String token) {
+    Team team = teamDao.findByToken(token);
+    if (team == null)
+      throw new UserException("Не найдена команда с указанным Token");
+    return team;
+  }
+
+  private TestCaseResult createAndSaveTestCaseResult(TestCase testCase, Result result) {
+    String output = JavaCompilerAndExecutor.compileAndExecute(result.getSourceCode(), testCase.getInput());
+    TestCaseResult testCaseResult = createTestCaseResult(testCase, result, output);
+    testCaseResultDao.save(testCaseResult);
+    return testCaseResult;
+  }
+
+  private static TestCaseResult createTestCaseResult(TestCase testCase, Result result, String output) {
+    TestCaseResult testCaseResult = new TestCaseResult();
+    testCaseResult.setTestCaseId(testCase.getId());
+    testCaseResult.setResultId(result.getId());
+    testCaseResult.setOutput(output);
+    return testCaseResult;
+  }
+
+  private static Result createResult(SubmitRequestData submitData, Team team, OosResult oosResult) {
     Result result = new Result();
     result.setTaskId(submitData.getTaskId());
     result.setTeamId(team.getId());

@@ -13,14 +13,14 @@
         <td class="woBorder">
           <h3 th:text="${task.name}">Задание 1</h3>
           <p th:utext="${task.description}">Описание задания</p>
-          <a th:href="@{/tasklist/__${task.id}__}">Подробнее (разработка)</a> <a th:href="@{/test-tasklist/__${task.id}__}">Подробнее (тестирование)</a>
+          <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
         </td>
       </tr>
       <tr th:remove="all">
         <td>
           <h3 th:text="${task.name}">Задание 2</h3>
           <p th:utext="${task.description}">Описание задания</p>
-          <a th:href="@{/tasklist/__${task.id}__}">Подробнее (разработка)</a>  <a th:href="@{/test-tasklist/__${task.id}__}">Подробнее (тестирование)</a>
+          <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
         </td>
       </tr>
     </table>

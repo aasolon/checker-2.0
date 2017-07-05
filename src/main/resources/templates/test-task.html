@@ -5,9 +5,18 @@
   <title>task_test</title>
   <link th:href="@{/css/checker.css}" rel="stylesheet"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    function refreshTestCaseList(event) {
+      var resultId = event.target.id.substring("testVerdictList".length, event.target.id.length);
+      $("#resultIdWithVerdict").val(resultId);
+      document.getElementsByName('refresh')[0].click();
+      $("#resultIdWithVerdict").val("");
+    }
+  </script>
 </head>
 <body>
 <div id="container">
+  <a th:href="@{/test-tasklist}">Вернуться к списку задач</a>
   <h2 th:text="${task.name}">Задание 1</h2>
   <p th:utext="${task.description}">Описание задания</p>
   <h4>Исходные данные</h4>
@@ -32,14 +41,51 @@
 
 
 
-  <form action="#" th:action="@{/test-submit-result}" th:object="${testRequestData}" method="post">
-    <input th:field="*{taskId}" id="taskId" type="hidden"/>
+  <form action="#" th:action="@{/test-tasklist/__${id}__}" th:object="${testCase}" method="post">
+    <input th:field="*{resultIdWithVerdict}" id="resultIdWithVerdict" hidden="true"/>
     <p>Token:</p>
     <input th:field="*{token}" id="token" type="text" size="50" width="100%"/>
+    <p th:if="${#fields.hasErrors('token')}" th:errors="*{token}" style="color: red">Token Error</p>
     <p>Test case:</p>
-    <textarea th:field="*{testCase}" id="sourceCode" rows="10" cols="100"/>
+    <textarea th:field="*{input}" id="testCase" rows="10" cols="100"></textarea>
+    <p th:if="${#fields.hasErrors('input')}" th:errors="*{input}" style="color: red">Input Error</p>
     <br/>
-    <input type="submit" value="Запустить"/>
+    <input type="submit" name="add" value="Добавить"/>
+    <br/>
+    <br/>
+    <input type="submit" name="refresh" value="Обновить таблицу"/>
+
+    <br/>
+    <br/>
+
+    <table th:unless="${#lists.isEmpty(resultList)}">
+      <thead>
+        <tr>
+          <th>Test cases</th>
+          <th th:each="result : ${resultList}" th:text="${'Решение #' + result.id}">
+            Решение 1
+          </th>
+        </tr>
+        <tr>
+          <th>Вердикт</th>
+          <th th:each="result : ${resultList}">
+            <select th:field="*{testVerdictList[__${result.id}__]}" onchange="refreshTestCaseList(event);">
+              <option value=""></option>
+              <option value="0">Неверное решение</option>
+              <option value="1">Верное решение</option>
+            </select>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="testCase : ${testCaseList}">
+          <td><pre th:utext="${testCase.input}"></pre></td>
+          <td th:each="result : ${resultList}" th:utext="${testCase.resultList[__${result.id}__]?.output}"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p th:if="${#lists.isEmpty(resultList)}">Для данной задачи нет решений <img th:src="@{/img/no_results.gif}"/></p>
   </form>
 
   <div id="errorBlock" style="color:red">

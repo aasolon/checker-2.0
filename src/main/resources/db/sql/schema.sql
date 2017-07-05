@@ -1,6 +1,6 @@
 CREATE TABLE Task (
   Id IDENTITY,
-  Name VARCHAR(255),
+  Name VARCHAR(255) NOT NULL,
   Description CLOB,
   InitialData CLOB,
   Result CLOB,
@@ -12,25 +12,26 @@ CREATE TABLE Task (
 CREATE TABLE Team (
   Id IDENTITY,
   Name VARCHAR(255),
-  Token UUID,
-  Judge_ID VARCHAR(255),
+  Token UUID NOT NULL,
+  Judge_ID VARCHAR(255) NOT NULL,
   OosKey BIGINT
 );
 
 CREATE TABLE Language (
   Id IDENTITY,
-  Name VARCHAR(255),
+  Name VARCHAR(255) NOT NULL,
   OosKey BIGINT
 );
 
 CREATE TABLE Result (
   Id IDENTITY,
-  Task_Id BIGINT CONSTRAINT fk_Result_Task REFERENCES Task,
-  Team_Id BIGINT CONSTRAINT fk_Result_Team REFERENCES Team,
-  Tstamp TIMESTAMP,
-  Lang_Id BIGINT CONSTRAINT fk_Result_Lang REFERENCES Language,
+  Task_Id BIGINT NOT NULL CONSTRAINT fk_Result_Task REFERENCES Task,
+  Team_Id BIGINT NOT NULL CONSTRAINT fk_Result_Team REFERENCES Team,
+  Tstamp TIMESTAMP NOT NULL,
+  Lang_Id BIGINT NOT NULL CONSTRAINT fk_Result_Lang REFERENCES Language,
   Verdict VARCHAR(255),
-  SourceCode CLOB,
+  CompilationError CLOB,
+  SourceCode CLOB NOT NULL,
   TestNumber INT,
   Runtime DECIMAL,
   Memory VARCHAR(255),
@@ -39,23 +40,26 @@ CREATE TABLE Result (
 
 CREATE TABLE TestCase (
   Id IDENTITY,
-  Team_Id BIGINT CONSTRAINT fk_TestCase_Team REFERENCES Team,
-  Task_Id BIGINT CONSTRAINT fk_TestCase_Task REFERENCES Task,
-  Input CLOB
+  Tstamp TIMESTAMP NOT NULL,
+  Team_Id BIGINT NOT NULL CONSTRAINT fk_TestCase_Team REFERENCES Team,
+  Task_Id BIGINT NOT NULL CONSTRAINT fk_TestCase_Task REFERENCES Task,
+  Input CLOB NOT NULL,
+  Actual BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE TestCaseResult (
   Id IDENTITY,
-  Team_Id BIGINT CONSTRAINT fk_TestCaseResult_Team REFERENCES Team,
-  Task_Id BIGINT CONSTRAINT fk_TestCaseResult_Task REFERENCES Task,
-  TestCase_Id BIGINT CONSTRAINT fk_TestCaseResult_TestCase REFERENCES TestCase,
-  Result_Id BIGINT CONSTRAINT fk_TestCaseResult_Result REFERENCES Result,
-  Output CLOB
+  TestCase_Id BIGINT NOT NULL CONSTRAINT fk_TestCaseResult_TestCase REFERENCES TestCase,
+  Result_Id BIGINT NOT NULL CONSTRAINT fk_TestCaseResult_Result REFERENCES Result,
+  Output CLOB,
+  CONSTRAINT uq_TestCaseResult UNIQUE(TestCase_Id, Result_Id)
 );
 
 CREATE TABLE TestVerdict (
   Id IDENTITY,
-  Team_Id BIGINT CONSTRAINT fk_TestVerdict_Team REFERENCES Team,
-  Task_Id BIGINT CONSTRAINT fk_TestVerdict_Task REFERENCES Task,
-  Result_Id BIGINT CONSTRAINT fk_TestVerdict_Result REFERENCES Result
+  Team_Id BIGINT NOT NULL CONSTRAINT fk_TestVerdict_Team REFERENCES Team,
+  Task_Id BIGINT NOT NULL CONSTRAINT fk_TestVerdict_Task REFERENCES Task,
+  Result_Id BIGINT NOT NULL CONSTRAINT fk_TestVerdict_Result REFERENCES Result,
+  Verdict BOOLEAN,
+  CONSTRAINT uq_TestVerdict UNIQUE(Team_Id, Task_Id, Result_Id)
 );

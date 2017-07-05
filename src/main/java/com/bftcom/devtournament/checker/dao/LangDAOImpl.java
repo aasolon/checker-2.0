@@ -3,6 +3,7 @@ package com.bftcom.devtournament.checker.dao;
 import com.bftcom.devtournament.checker.model.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -17,10 +18,8 @@ public class LangDAOImpl implements LangDAO {
 
   @Override
   public Lang findById(long id) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("id", id);
     String sql = "SELECT * FROM Language WHERE id=:id";
-    return jdbcTemplate.queryForObject(sql, params, getLangRowMapper());
+    return jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), getLangRowMapper());
   }
 
   @Override

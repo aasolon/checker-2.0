@@ -18,3 +18,11 @@ td, th {
 table.woBorder, td.woBorder {
   border: none;
 }
+
+span.accept {
+  color: green;
+}
+
+span.error {
+  color: red;
+}

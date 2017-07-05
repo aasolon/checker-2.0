@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>tasklist</title>
+  <link th:href="@{/css/checker.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="container">
+  <table th:each="task : ${taskList}" class="woBorder">
+    <tr>
+      <td class="woBorder">
+        <h3 th:text="${task.name}">Задание 1</h3>
+        <p th:utext="${task.description}">Описание задания</p>
+        <a th:href="@{/test-tasklist/__${task.id}__}">Подробнее</a>
+      </td>
+    </tr>
+    <tr th:remove="all">
+      <td>
+        <h3 th:text="${task.name}">Задание 2</h3>
+        <p th:utext="${task.description}">Описание задания</p>
+        <a th:href="@{/test-tasklist/__${task.id}__}">Подробнее</a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+</body>
+</html>

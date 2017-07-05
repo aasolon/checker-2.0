@@ -4,6 +4,7 @@ import com.bftcom.devtournament.checker.model.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,10 +21,8 @@ public class TeamDAOImpl implements TeamDAO {
 
   @Override
   public Team findById(long id) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("id", id);
     String sql = "SELECT * FROM Team WHERE id=:id";
-    return jdbcTemplate.queryForObject(sql, params, getTeamRowMapper());
+    return jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), getTeamRowMapper());
   }
 
   @Override

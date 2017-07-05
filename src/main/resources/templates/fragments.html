@@ -27,7 +27,22 @@
           </td>
           <td th:text="${result.timestamp}"></td>
           <td th:text="${result.langName}"></td>
-          <td th:text="${result.verdict}"></td>
+          <td th:switch="${result.verdict}">
+            <span th:case="'Accepted'" class="accept">Принято</span>
+            <span th:case="'Compilation error'">
+              <a th:href="@{/compilation-error/__${result.id}__}">Ошибка компиляции</a>
+            </span>
+            <span th:case="'Wrong answer'" class="error">Ответ неверный</span>
+            <span th:case="'Time limit exceeded'" class="error">Превышено время</span>
+            <span th:case="'Memory limit exceeded'" class="error">Превышена память</span>
+            <span th:case="'Output limit exceeded'" class="error">Превышен размер потока выходных данных</span>
+            <span th:case="'Idleness limit exceeded'" class="error">Превышено время бездействия</span>
+            <span th:case="'Runtime error'" class="error">Ошибка выполнения</span>
+            <span th:case="'Restricted function'" class="error">Запрещенная функция</span>
+            <span th:case="'Compiling'">Компиляция...</span>
+            <span th:case="'Running'">Выполнение...</span>
+            <span th:case="*">Неизвестный результат</span>
+          </td>
           <td th:text="${result.testNumber}"></td>
           <td th:text="${result.runtime}"></td>
           <td th:text="${result.memory}"></td>

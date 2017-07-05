@@ -3,8 +3,9 @@ package com.bftcom.devtournament.checker.controller;
 import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.Result;
 import com.bftcom.devtournament.checker.model.Task;
+import com.bftcom.devtournament.checker.model.TestCase;
 import com.bftcom.devtournament.checker.service.MainService;
-import org.apache.commons.io.FileUtils;
+import com.bftcom.devtournament.checker.service.OutgoingManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,22 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.tools.*;
 import javax.validation.Valid;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.*;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,19 +32,22 @@ public class MainController {
   @Autowired
   private MainService service;
 
+
+
+  //****************************************** Обработка запросов разработки ******************************************
   @RequestMapping("/")
   public String index() {
     return "redirect:/tasklist";
   }
 
   @RequestMapping("/tasklist")
-  public String taskList(Model model) {
+  public String showTaskList(Model model) {
     model.addAttribute("taskList", service.findAllTasks());
     return "tasklist";
   }
 
   @RequestMapping("/tasklist/{id}")
-  public String task(@PathVariable("id") long id, Model model) {
+  public String showTask(@PathVariable("id") long id, Model model) {
     Task task = service.findTaskById(id);
     if (task == null)
       return "error/404";
@@ -88,11 +85,96 @@ public class MainController {
   }
 
   @RequestMapping("/result/{id}")
-  public String result(@PathVariable("id") long id, Model model) {
-    model.addAttribute("result", service.findResultById(id).getSourceCode());
+  public String showResultSourceCode(@PathVariable("id") long taskId, Model model) {
+    model.addAttribute("result", service.findResultById(taskId).getSourceCode());
     return "result";
   }
 
+  @RequestMapping("/compilation-error/{id}")
+  public String showResultCompilationError(@PathVariable("id") long taskId, Model model) {
+    model.addAttribute("compilationError", service.findResultById(taskId).getCompilationError());
+    return "compilation-error";
+  }
+
+
+
+
+
+
+
+  //***************************************** Обработка запросов тестирования *****************************************
+  @RequestMapping("/test-tasklist")
+  public String showTestTaskList(Model model) {
+    model.addAttribute("taskList", service.findAllTasks());
+    return "test-tasklist";
+  }
+
+  @GetMapping("/test-tasklist/{id}")
+  public String showTestTask(@PathVariable("id") long id, Model model, @ModelAttribute TestCase testCase) {
+    if (!fillTestModel(id, model, testCase))
+      return "error/404";
+
+    return "test-task";
+  }
+
+  @PostMapping(path = "/test-tasklist/{id}", params = "add")
+  public String submitTestCase(@PathVariable("id") long taskId, Model model,
+                               @Validated(TestCase.GroupSubmitTestCase.class) @ModelAttribute TestCase testCase,
+                               BindingResult bindingResult, final RedirectAttributes redirectAttributes) throws Exception {
+    if (bindingResult.hasErrors()) {
+      fillTestModel(taskId, model, testCase);
+
+      return "test-task";
+    }
+
+    testCase.setTaskId(taskId);
+    service.saveAndCompileTestCase(testCase);
+
+    testCase.setInput(null);
+    redirectAttributes.addFlashAttribute("testCase", testCase);
+    return "redirect:/test-tasklist/" + taskId;
+  }
+
+  @PostMapping(path = "/test-tasklist/{id}", params = "refresh")
+  public String refreshTestCaseList(@PathVariable("id") long taslId, Model model,
+                                    @Validated(TestCase.GroupRefreshTestCase.class) @ModelAttribute TestCase testCase,
+                                    BindingResult bindingResult) throws Exception {
+    if (!bindingResult.hasErrors() && testCase.getResultIdWithVerdict() != 0) {
+      service.saveTestVerdict(testCase.getToken(), taslId, testCase.getTestVerdictList(), testCase.getResultIdWithVerdict());
+    }
+
+    fillTestModel(taslId, model, testCase);
+
+    return "test-task";
+  }
+
+  private boolean fillTestModel(long taskId, Model model, TestCase testCase) {
+    Task task = service.findTaskById(taskId);
+    if (task == null)
+      return false;
+    model.addAttribute("task", task);
+    
+    List<Result> resultList = service.findResultsByTaskIdAndAccepted(taskId);
+    model.addAttribute("resultList", resultList);
+
+    if (StringUtils.isNotEmpty(testCase.getToken())) {
+      testCase.setTestVerdictList(service.findTestVerdictsByTokenAndTaskId(testCase.getToken(), taskId));
+
+      List<TestCase> testCaseList = service.refreshTestCaseList(testCase.getToken(), taskId, resultList);
+      model.addAttribute("testCaseList", testCaseList);
+    }
+
+    testCase.setResultIdWithVerdict(0);
+
+    return true;
+  }
+
+
+
+
+
+
+  //************************************************* Обработка ошибок *************************************************
   @ExceptionHandler(UserException.class)
   public ModelAndView handleError(UserException ex) {
     log.error("Ошибка удаленного вызова", ex);
@@ -105,70 +187,7 @@ public class MainController {
   public ModelAndView handleError(Throwable ex) {
     log.error("Ошибка удаленного вызова", ex);
     ModelAndView mav = new ModelAndView("fragments :: errorlist");
-    mav.addObject("errorList", "Ошибка удаленного вызова, обратитесь к администратору системы");
+    mav.addObject("errorList", "Ошибка удаленного вызова, повторите попытку или обратиесть к администратору системы");
     return mav;
-  }
-
-
-
-  @RequestMapping("/test-tasklist/{id}")
-  public String taskTest(@PathVariable("id") long id, Model model, @ModelAttribute TestRequestData testRequestData) {
-    Task task = service.findTaskById(id);
-    if (task == null)
-      return "error/404";
-    model.addAttribute("task", task);
-    testRequestData.setTaskId(id);
-    testRequestData.setTestCase(null);
-    model.addAttribute("testRequestData", testRequestData);
-    return "test-task";
-  }
-
-  @RequestMapping("/test-submit-result")
-  public String submitResultTest(@ModelAttribute TestRequestData testRequestData, final RedirectAttributes redirectAttributes) throws Exception {
-    redirectAttributes.addFlashAttribute("testRequestData", testRequestData);
-    Result result = service.findResultById(1);
-    String sourceCode = result.getSourceCode();
-    String firstLine = sourceCode.substring(0, sourceCode.indexOf("\n") + 1);
-    if (StringUtils.containsIgnoreCase(firstLine, "package"))
-      sourceCode = sourceCode.substring(sourceCode.indexOf("\n") + 1);
-    String fileName = "ReverseRoot";
-    String pathToJavaFile = System.getProperty("user.dir") + File.separator + "compiled" + File.separator + fileName + ".java";
-    String pathToClassFile = System.getProperty("user.dir") + File.separator + "compiled";
-    FileUtils.cleanDirectory(new File(System.getProperty("user.dir") + File.separator + "compiled"));
-    File f = new File(pathToJavaFile);
-    f.getParentFile().mkdirs();
-    f.createNewFile();
-    Files.write(Paths.get(pathToJavaFile), sourceCode.getBytes());
-
-    Process pro = Runtime.getRuntime().exec(System.getenv("JAVA_HOME") + File.separator + "bin" + File.separator + "javac " + pathToJavaFile);
-    pro.waitFor();
-    System.out.println(System.getenv("JAVA_HOME") + File.separator + "bin" + File.separator + "java -cp " + pathToClassFile + " " + fileName);
-    Process pro2 = Runtime.getRuntime().exec(System.getenv("JAVA_HOME") + File.separator + "bin" + File.separator + "java -cp " + pathToClassFile + " " + fileName);
-    String result1 = " 1427  0   \n" +
-        "\n" +
-        "   876652098643267843 \n" +
-        "5276538";
-    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(pro2.getOutputStream()))) {
-      writer.write(result1, 0, result1.length());
-    }
-    printLines(pro2.getInputStream());
-    printLines(pro2.getErrorStream());
-    pro2.waitFor();
-
-
-    String j = "";
-    for (int i = 0; i < 100000; i++) {
-      j += "a";
-    }
-
-    return "redirect:/test-tasklist/" + testRequestData.getTaskId();
-  }
-
-  private static void printLines(InputStream ins) throws Exception {
-    String line;
-    BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-    while ((line = in.readLine()) != null) {
-      System.out.println(line);
-    }
   }
 }
