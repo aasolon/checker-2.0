@@ -30,7 +30,7 @@ public class TestCaseDAOImpl implements TestCaseDAO {
   }
 
   @Override
-  public List<TestCase> findByTeamAndTaskId(long teamId, long taskId) {
+  public List<TestCase> findByTeamIdAndTaskId(long teamId, long taskId) {
     String sql = "SELECT * FROM TestCase WHERE Actual = True AND Team_Id = :team_id AND Task_Id = :task_id";
     return jdbcTemplate.query(sql, new MapSqlParameterSource("team_id", teamId).addValue("task_id", taskId),
         getTestCaseRowMapper());

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
-  <title>task_test</title>
+  <title th:text="${task.name}">test-task</title>
   <link th:href="@{/css/checker.css}" rel="stylesheet"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script>
@@ -30,14 +30,14 @@
 <body>
 <div id="container">
   <a th:href="@{/test-tasklist}">Вернуться к списку задач</a>
-  <h2 th:text="${task.name}">Задание 1</h2>
-  <p th:utext="${task.description}">Описание задания</p>
-  <h4>Исходные данные</h4>
-  <p th:utext="${task.initialData}">Описание исходных данных</p>
-  <h4>Результат</h4>
-  <p th:utext="${task.result}">Описание результата</p>
-  <h4>Пример</h4>
-  <table>
+  <h2 th:unless="${#strings.isEmpty(task.name)}" th:text="${task.name}">Задание 1</h2>
+  <p th:unless="${#strings.isEmpty(task.description)}" th:utext="${task.description}">Описание задания</p>
+  <h4 th:unless="${#strings.isEmpty(task.initialData)}">Исходные данные</h4>
+  <p th:unless="${#strings.isEmpty(task.initialData)}" th:utext="${task.initialData}">Описание исходных данных</p>
+  <h4 th:unless="${#strings.isEmpty(task.result)}">Результат</h4>
+  <p th:unless="${#strings.isEmpty(task.result)}" th:utext="${task.result}">Описание результата</p>
+  <h4 th:unless="${#strings.isEmpty(task.exampleInitialData)}">Пример</h4>
+  <table th:unless="${#strings.isEmpty(task.exampleInitialData)}">
     <thead>
     <tr>
       <th>Исходные данные</th>
@@ -57,7 +57,7 @@
   <form id="testCaseSubmitForm" action="#" th:action="@{/test-tasklist/__${id}__}" th:object="${testCase}" method="post">
     <input th:field="*{resultIdWithVerdict}" id="resultIdWithVerdict" hidden="true"/>
     <input th:field="*{deleteId}" id="deleteId" hidden="true"/>
-    <p>Token:</p>
+    <p>Токен команды:</p>
     <input th:field="*{token}" id="token" type="text" size="50" width="100%"/>
     <p th:if="${#fields.hasErrors('token')}" th:errors="*{token}" style="color: red">Token Error</p>
     <p>Test case:</p>

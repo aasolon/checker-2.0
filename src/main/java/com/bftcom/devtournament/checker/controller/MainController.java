@@ -3,7 +3,6 @@ package com.bftcom.devtournament.checker.controller;
 import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.Result;
 import com.bftcom.devtournament.checker.model.Task;
-import com.bftcom.devtournament.checker.model.Team;
 import com.bftcom.devtournament.checker.model.TestCase;
 import com.bftcom.devtournament.checker.service.MainService;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -88,17 +88,15 @@ public class MainController {
 
   @RequestMapping("/result/{id}")
   public String showResultSourceCode(@PathVariable("id") long taskId,
-                                     @RequestParam(value = "token", required = false) String token, Model model) {
-    service.findTeamByToken(token);
-    model.addAttribute("result", service.findResultById(taskId).getSourceCode());
+                                     @RequestParam("token") String token, Model model) {
+    model.addAttribute("result", service.findResultById(taskId, token).getSourceCode());
     return "result";
   }
 
   @RequestMapping("/compilation-error/{id}")
   public String showResultCompilationError(@PathVariable("id") long taskId,
-                                           @RequestParam(value = "token", required = false) String token, Model model) {
-    service.findTeamByToken(token);
-    model.addAttribute("compilationError", service.findResultById(taskId).getCompilationError());
+                                           @RequestParam("token") String token, Model model) {
+    model.addAttribute("compilationError", service.findResultById(taskId, token).getCompilationError());
     return "compilation-error";
   }
 
@@ -200,6 +198,14 @@ public class MainController {
     log.error("Ошибка удаленного вызова", ex);
     ModelAndView mav = new ModelAndView("fragments :: errorlist");
     mav.addObject("errorList", ex.getErrorMsgList());
+    return mav;
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ModelAndView handleMissingRequestParams(MissingServletRequestParameterException ex) {
+    log.error("Ошибка удаленного вызова", ex);
+    ModelAndView mav = new ModelAndView("fragments :: errorlist");
+    mav.addObject("errorList", "В HTTP-запросе отсутствует параметр \"" + ex.getParameterName() + "\"");
     return mav;
   }
 

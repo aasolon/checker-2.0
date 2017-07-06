@@ -8,7 +8,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.util.EntityUtils;
@@ -55,6 +54,9 @@ public class OutgoingManager {
         .addTextBody("ProblemNum", String.valueOf(problemNum))
         .addTextBody("Source", sourceCode)
         .build();
+    log.info("HTTP POST Request = \nURL=http://acm.timus.ru/submit.aspx?space=1\n" +
+        "Params:\nAction=submit\nSpaceID=1\nJudgeID=" + judgeId + "\nLanguage=" + String.valueOf(langId) + "\n" +
+        "ProblemNum=" + String.valueOf(problemNum) + "\nSource=" + sourceCode);
     SubmitResult submitResult = Request.Post("http://acm.timus.ru/submit.aspx?space=1")
         .body(requestEntity).execute().handleResponse(response -> {
           HttpEntity responseEntity = response.getEntity();
@@ -62,7 +64,7 @@ public class OutgoingManager {
           if (responseStatusCode != HttpURLConnection.HTTP_OK)
             throw new UserException("Непредвиденная ошибка при отправке решения, попробуйте повторить попытку");
           String responseString = EntityUtils.toString(responseEntity);
-          log.debug("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
+          log.info("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
           return StringUtils.containsIgnoreCase(responseString, WAIT_MSG) ? SubmitResult.WAIT : SubmitResult.OK;
         });
     return submitResult;
@@ -70,6 +72,7 @@ public class OutgoingManager {
 
 
   public List<OosResult> getOosResultList(long num, long author) throws IOException {
+    log.info("HTTP GET Request = \nURL=http://acm.timus.ru/status.aspx?space=1&num=" + num + "&author=" + author);
     List<OosResult> oosResultList = Request.Get("http://acm.timus.ru/status.aspx?space=1&num=" + num + "&author=" + author)
         .execute().handleResponse(response -> {
           HttpEntity responseEntity = response.getEntity();
@@ -77,7 +80,7 @@ public class OutgoingManager {
           if (responseStatusCode != HttpURLConnection.HTTP_OK)
             throw new UserException("Непредвиденная ошибка при отправке решения, попробуйте повторить попытку");
           String responseString = EntityUtils.toString(responseEntity);
-          log.debug("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
+          log.info("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
           return HtmlParser.parseOosResultList(responseString);
         });
     return oosResultList;
@@ -89,6 +92,8 @@ public class OutgoingManager {
         .add("Source", "/ce.aspx?id=" + resultOosKey)
         .add("JudgeID", judgeId)
         .build();
+    log.info("HTTP POST Request =\nURL=http://acm.timus.ru/auth.aspx\nParams:\nAction=login\nSource=/ce.aspx?id=" + resultOosKey +
+        "\nJudgeID=judgeId");
     String compilationError = Request.Post("http://acm.timus.ru/auth.aspx")
         .bodyForm(postParams)
         .execute().handleResponse(response -> {
@@ -97,7 +102,7 @@ public class OutgoingManager {
           if (responseStatusCode != HttpURLConnection.HTTP_OK)
             throw new UserException("Непредвиденная ошибка при отправке решения, попробуйте повторить попытку");
           String responseString = EntityUtils.toString(responseEntity);
-          log.debug("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
+          log.info("HTTP Response = \nHTTP code=" + responseStatusCode + "\n" + responseString);
           return responseString;
         });
     return compilationError;

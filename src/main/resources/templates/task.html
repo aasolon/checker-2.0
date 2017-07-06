@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
-  <title>task</title>
+  <title th:text="${task.name}">task</title>
   <link th:href="@{/css/checker.css}" rel="stylesheet"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script th:inline="javascript">
@@ -98,7 +98,7 @@
 
 
 
-    <p>Token:</p>
+    <p>Токен команды:</p>
     <input id="token" type="text" size="50" width="100%"/>
     <p>Язык:</p>
     <select id="langId">

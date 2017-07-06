@@ -7,6 +7,8 @@ import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.*;
 import com.bftcom.devtournament.checker.util.JavaCompilerAndExecutor;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class MainService {
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private TaskDAO taskDao;
@@ -47,7 +50,9 @@ public class MainService {
     return langDao.findAll();
   }
 
-  public Result findResultById(long id) {
+  public Result findResultById(long id, String token) {
+    // дергаем метод findTeamByToken для проверки наличия token, если его нет - вывалится exception
+    findTeamByToken(token);
     return resultDao.findById(id);
   }
 
@@ -88,49 +93,56 @@ public class MainService {
     } else {
       List<OosResult> oosResultList = outgoingManager.getOosResultList(task.getOosKey(), team.getOosKey());
       OosResult oosResult = oosResultList.get(0);
-      Result result = createResult(submitData, team, oosResult);
+      Result result = constructResultObject(submitData, team, oosResult);
       resultDao.save(result);
     }
   }
 
   public void saveAndCompileTestCase(TestCase testCase) {
-    Team team = findTeamByToken(testCase.getToken());
-    testCase.setTeamId(team.getId());
-    testCaseDao.save(testCase);
+    synchronized (MainService.class) {
+      Team team = findTeamByToken(testCase.getToken());
+      testCase.setTeamId(team.getId());
+      testCaseDao.save(testCase);
 
-    List<Result> resultList = resultDao.findByTaskIdAndAccepted(testCase.getTaskId());
-    for (Result result : resultList) {
-      createAndSaveTestCaseResult(testCase, result);
+      List<Result> resultList = resultDao.findByTaskIdAndAccepted(testCase.getTaskId());
+      for (Result result : resultList) {
+        createAndSaveTestCaseResult(testCase, result);
+      }
     }
   }
 
   public void deleteTestCase(String token, long testCaseId) {
-    Team team = findTeamByToken(token);
-    testCaseDao.delete(testCaseId);
+    synchronized (MainService.class) {
+      // дергаем метод findTeamByToken для проверки наличия token, если его нет - вывалится exception
+      findTeamByToken(token);
+      testCaseDao.delete(testCaseId);
+    }
   }
 
   public List<TestCase> refreshTestCaseList(String token, long taskId, List<Result> resultList) {
-    Team team = findTeamByToken(token);
+    synchronized (MainService.class) {
+      Team team = findTeamByToken(token);
 
-    List<TestCase> testCaseList = testCaseDao.findByTeamAndTaskId(team.getId(), taskId);
-    for (TestCase testCase : testCaseList) {
-      // сначала вытянем из БД уже вычисленные варианты
-      List<TestCaseResult> testCaseResultList = testCaseResultDao.findByTestCaseId(testCase.getId());
-      Map<Long, TestCaseResult> testCaseResultMap =
-          testCaseResultList.stream().collect(Collectors.toMap(TestCaseResult::getResultId, e -> e));
+      List<TestCase> testCaseList = testCaseDao.findByTeamIdAndTaskId(team.getId(), taskId);
+      for (TestCase testCase : testCaseList) {
+        // сначала вытянем из БД уже вычисленные варианты
+        List<TestCaseResult> testCaseResultList = testCaseResultDao.findByTestCaseId(testCase.getId());
+        Map<Long, TestCaseResult> testCaseResultMap =
+            testCaseResultList.stream().collect(Collectors.toMap(TestCaseResult::getResultId, e -> e));
 
-      // затем проверим не добавились ли новые решения
-      List<Result> notProcessedResultList = resultList.stream()
-          .filter(e -> !testCaseResultMap.containsKey(e.getId())).collect(Collectors.toList());
-      if (!notProcessedResultList.isEmpty()) {
-        for (Result notProcessedResult : notProcessedResultList)
-          testCaseResultMap.put(notProcessedResult.getId(), createAndSaveTestCaseResult(testCase, notProcessedResult));
+        // затем проверим не добавились ли новые решения
+        List<Result> notProcessedResultList = resultList.stream()
+            .filter(e -> !testCaseResultMap.containsKey(e.getId())).collect(Collectors.toList());
+        if (!notProcessedResultList.isEmpty()) {
+          for (Result notProcessedResult : notProcessedResultList)
+            testCaseResultMap.put(notProcessedResult.getId(), createAndSaveTestCaseResult(testCase, notProcessedResult));
+        }
+
+        testCase.setResultList(testCaseResultMap);
       }
 
-      testCase.setResultList(testCaseResultMap);
+      return testCaseList;
     }
-
-    return testCaseList;
   }
 
   public void saveTestVerdict(String token, long taskId, Map<Long, Integer> testVerdictList, long resultIdWithVerdict) {
@@ -139,6 +151,9 @@ public class MainService {
     testVerdictDao.merge(team.getId(), taskId, resultIdWithVerdict, vredict == null ? null : vredict == 1);
   }
 
+  /**
+   * @return result_id -> verdict
+   */
   public Map<Long, Integer> findTestVerdictsByTokenAndTaskId(String token, long taskId) {
     Team team = findTeamByToken(token);
     return testVerdictDao.findByTeamIdAndTaskId(team.getId(), taskId);
@@ -153,12 +168,12 @@ public class MainService {
 
   private TestCaseResult createAndSaveTestCaseResult(TestCase testCase, Result result) {
     String output = JavaCompilerAndExecutor.compileAndExecute(result.getSourceCode(), testCase.getInput());
-    TestCaseResult testCaseResult = createTestCaseResult(testCase, result, output);
+    TestCaseResult testCaseResult = constructTestCaseResultObject(testCase, result, output);
     testCaseResultDao.save(testCaseResult);
     return testCaseResult;
   }
 
-  private static TestCaseResult createTestCaseResult(TestCase testCase, Result result, String output) {
+  private static TestCaseResult constructTestCaseResultObject(TestCase testCase, Result result, String output) {
     TestCaseResult testCaseResult = new TestCaseResult();
     testCaseResult.setTestCaseId(testCase.getId());
     testCaseResult.setResultId(result.getId());
@@ -166,7 +181,7 @@ public class MainService {
     return testCaseResult;
   }
 
-  private static Result createResult(SubmitRequestData submitData, Team team, OosResult oosResult) {
+  private static Result constructResultObject(SubmitRequestData submitData, Team team, OosResult oosResult) {
     Result result = new Result();
     result.setTaskId(submitData.getTaskId());
     result.setTeamId(team.getId());

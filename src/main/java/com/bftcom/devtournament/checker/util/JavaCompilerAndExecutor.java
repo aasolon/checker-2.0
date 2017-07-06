@@ -42,13 +42,13 @@ public class JavaCompilerAndExecutor {
 
       // 4. Компильнем
       String javacCommand = javaHomePath + "javac " + pathToJavaFile;
-      log.debug(javacCommand);
+      log.info(javacCommand);
       Process javacProcess = Runtime.getRuntime().exec(javacCommand);
       javacProcess.waitFor();
 
       // 5. Заупустим то, что получилось, и вернем результат
       String javaCommand = javaHomePath + "java -client -Xmx544m -Xss64m -DBFT_CHECKER -cp " + compilePath + " " + className;
-      log.debug(javaCommand);
+      log.info(javaCommand);
       Process javaProcess = Runtime.getRuntime().exec(javaCommand);
       try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(javaProcess.getOutputStream()))) {
         writer.write(input, 0, input.length());
@@ -66,7 +66,7 @@ public class JavaCompilerAndExecutor {
       try {
         FileUtils.deleteDirectory(new File(compilePath));
       } catch (IOException e) {
-        log.debug("shit happens");
+        log.info("shit happens");
       }
     }
   }

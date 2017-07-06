@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
-  <title>tasklist</title>
+  <title>Список задач</title>
   <link th:href="@{/css/checker.css}" rel="stylesheet"/>
 </head>
 <body>
@@ -13,14 +13,14 @@
         <td class="woBorder">
           <h3 th:text="${task.name}">Задание 1</h3>
           <p th:utext="${task.description}">Описание задания</p>
-          <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+          <a th:href="@{/tasklist/__${task.id}__}">Отправить решение</a>
         </td>
       </tr>
       <tr th:remove="all">
         <td>
           <h3 th:text="${task.name}">Задание 2</h3>
           <p th:utext="${task.description}">Описание задания</p>
-          <a th:href="@{/tasklist/__${task.id}__}">Подробнее</a>
+          <a th:href="@{/tasklist/__${task.id}__}">Отправить решение</a>
         </td>
       </tr>
     </table>

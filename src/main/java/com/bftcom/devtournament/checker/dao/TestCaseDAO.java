@@ -7,7 +7,7 @@ import java.util.List;
 public interface TestCaseDAO {
   TestCase findById(long id);
   List<TestCase> findAll();
-  List<TestCase> findByTeamAndTaskId(long teamId, long taskId);
+  List<TestCase> findByTeamIdAndTaskId(long teamId, long taskId);
   void save(TestCase testCase);
   void delete(long id);
 }
