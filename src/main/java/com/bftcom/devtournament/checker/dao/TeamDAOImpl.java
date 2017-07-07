@@ -1,5 +1,6 @@
 package com.bftcom.devtournament.checker.dao;
 
+import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -28,12 +29,15 @@ public class TeamDAOImpl implements TeamDAO {
   @Override
   public Team findByToken(String token) {
     try {
+      UUID.fromString(token);
       Map<String, Object> params = new HashMap<>();
       params.put("token", token);
       String sql = "SELECT * FROM Team WHERE token=:token";
       return jdbcTemplate.queryForObject(sql, params, getTeamRowMapper());
     } catch (EmptyResultDataAccessException ex) {
       return null;
+    } catch (IllegalArgumentException ex) {
+      throw new UserException("Не найдена команда с указанным Token");
     }
   }
 
