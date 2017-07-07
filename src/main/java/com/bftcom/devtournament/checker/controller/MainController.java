@@ -1,5 +1,6 @@
 package com.bftcom.devtournament.checker.controller;
 
+import com.bftcom.devtournament.checker.exception.CheatingException;
 import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.Result;
 import com.bftcom.devtournament.checker.model.Task;
@@ -194,15 +195,24 @@ public class MainController {
 
   //************************************************* Обработка ошибок *************************************************
   @ExceptionHandler(UserException.class)
-  public ModelAndView handleError(UserException ex) {
+  public ModelAndView handleUserException(UserException ex) {
     log.error("Ошибка удаленного вызова", ex);
     ModelAndView mav = new ModelAndView("fragments :: errorlist");
     mav.addObject("errorList", ex.getErrorMsgList());
     return mav;
   }
 
+  @ExceptionHandler(CheatingException.class)
+  public ModelAndView handleCheatingException(UserException ex) {
+    log.error("Ошибка удаленного вызова", ex);
+    ModelAndView mav = new ModelAndView("fragments :: errorlist");
+    mav.addObject("errorList", ex.getErrorMsgList());
+    mav.addObject("cheating", "1");
+    return mav;
+  }
+
   @ExceptionHandler(MissingServletRequestParameterException.class)
-  public ModelAndView handleMissingRequestParams(MissingServletRequestParameterException ex) {
+  public ModelAndView handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
     log.error("Ошибка удаленного вызова", ex);
     ModelAndView mav = new ModelAndView("fragments :: errorlist");
     mav.addObject("errorList", "В HTTP-запросе отсутствует параметр \"" + ex.getParameterName() + "\"");
@@ -210,7 +220,7 @@ public class MainController {
   }
 
   @ExceptionHandler(Throwable.class)
-  public ModelAndView handleError(Throwable ex) {
+  public ModelAndView handleThrowable(Throwable ex) {
     log.error("Ошибка удаленного вызова", ex);
     ModelAndView mav = new ModelAndView("fragments :: errorlist");
     mav.addObject("errorList", "Ошибка удаленного вызова, повторите попытку или обратиесть к администратору системы");

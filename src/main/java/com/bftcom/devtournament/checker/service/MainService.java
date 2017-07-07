@@ -3,6 +3,7 @@ package com.bftcom.devtournament.checker.service;
 import com.bftcom.devtournament.checker.controller.RequestData;
 import com.bftcom.devtournament.checker.controller.SubmitRequestData;
 import com.bftcom.devtournament.checker.dao.*;
+import com.bftcom.devtournament.checker.exception.CheatingException;
 import com.bftcom.devtournament.checker.exception.UserException;
 import com.bftcom.devtournament.checker.model.*;
 import com.bftcom.devtournament.checker.util.JavaCompilerAndExecutor;
@@ -52,8 +53,11 @@ public class MainService {
 
   public Result findResultById(long id, String token) {
     // дергаем метод findTeamByToken для проверки наличия token, если его нет - вывалится exception
-    findTeamByToken(token);
-    return resultDao.findById(id);
+    Team team = findTeamByToken(token);
+    Result result = resultDao.findById(id);
+    if (result.getTeamId() != team.getId())
+      throw new CheatingException("Нельзя смотреть смотреть результаты других команд");
+    return result;
   }
 
   public List<Result> findResultsByTaskIdAndAccepted(long taskId) {

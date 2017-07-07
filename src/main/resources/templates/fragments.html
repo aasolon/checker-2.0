@@ -6,49 +6,53 @@
 </head>
 <body>
 
-  <div id="resultlist" th:fragment="resultlist" th:unless="${#lists.isEmpty(resultList)}">
+  <div id="resultlist" th:fragment="resultlist">
+    <div th:unless="${#lists.isEmpty(resultList)}">
     <h4>Результаты проверки решений</h4>
-    <table border="1px">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Дата</th>
-          <th>Язык</th>
-          <th>Результат проверки</th>
-          <th>№ теста</th>
-          <th>Время работы</th>
-          <th>Выделено памяти</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="result : ${resultList}">
-          <td>
-            <a th:href="@{/result/__${result.id}__(token=${token})}" th:text="${result.id}"></a>
-          </td>
-          <td th:text="${result.timestamp}"></td>
-          <td th:text="${result.langName}"></td>
-          <td th:switch="${result.verdict}">
-            <span th:case="'Accepted'" class="accept">Принято</span>
-            <span th:case="'Compilation error'">
-              <a th:href="@{/compilation-error/__${result.id}__(token=${token})}">Ошибка компиляции</a>
-            </span>
-            <span th:case="'Wrong answer'" class="error">Ответ неверный</span>
-            <span th:case="'Time limit exceeded'" class="error">Превышено время</span>
-            <span th:case="'Memory limit exceeded'" class="error">Превышена память</span>
-            <span th:case="'Output limit exceeded'" class="error">Превышен размер потока выходных данных</span>
-            <span th:case="'Idleness limit exceeded'" class="error">Превышено время бездействия</span>
-            <span th:case="'Runtime error'" class="error">Ошибка выполнения</span>
-            <span th:case="'Restricted function'" class="error">Запрещенная функция</span>
-            <span th:case="'Compiling'">Компиляция...</span>
-            <span th:case="'Running'">Выполнение...</span>
-            <span th:case="*">Неизвестный результат</span>
-          </td>
-          <td th:text="${result.testNumber}"></td>
-          <td th:text="${result.runtime}"></td>
-          <td th:text="${result.memory}"></td>
-        </tr>
-      </tbody>
-    </table>
+      <table border="1px">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Дата</th>
+            <th>Язык</th>
+            <th>Результат проверки</th>
+            <th>№ теста</th>
+            <th>Время работы</th>
+            <th>Выделено памяти</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="result : ${resultList}">
+            <td>
+              <a th:href="@{/result/__${result.id}__(token=${token})}" th:text="${result.id}"></a>
+            </td>
+            <td th:text="${result.timestamp}"></td>
+            <td th:text="${result.langName}"></td>
+            <td th:switch="${result.verdict}">
+              <span th:case="'Accepted'" class="accept">Принято</span>
+              <span th:case="'Compilation error'">
+                <a th:href="@{/compilation-error/__${result.id}__(token=${token})}">Ошибка компиляции</a>
+              </span>
+              <span th:case="'Wrong answer'" class="error">Ответ неверный</span>
+              <span th:case="'Time limit exceeded'" class="error">Превышено время</span>
+              <span th:case="'Memory limit exceeded'" class="error">Превышена память</span>
+              <span th:case="'Output limit exceeded'" class="error">Превышен размер потока выходных данных</span>
+              <span th:case="'Idleness limit exceeded'" class="error">Превышено время бездействия</span>
+              <span th:case="'Runtime error'" class="error">Ошибка выполнения</span>
+              <span th:case="'Restricted function'" class="error">Запрещенная функция</span>
+              <span th:case="'Compiling'">Компиляция...</span>
+              <span th:case="'Running'">Выполнение...</span>
+              <span th:case="*">Неизвестный результат</span>
+            </td>
+            <td th:text="${result.testNumber}"></td>
+            <td th:text="${result.runtime}"></td>
+            <td th:text="${result.memory}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p th:if="${#lists.isEmpty(resultList)}">Для данной задачи нет решений <img th:src="@{/img/no_results.gif}"/></p>
   </div>
 
   <div id="errorlist" th:fragment="errorlist" th:unless="${#lists.isEmpty(errorList)}">
@@ -58,6 +62,7 @@
         <td class="woBorder" th:text="${error}"></td>
       </tr>
     </table>
+    <img th:src="@{/img/cheating.gif}" th:unless="${#strings.isEmpty(cheating)}"/>
   </div>
 
 </body>
