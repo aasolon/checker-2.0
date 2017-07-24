@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class JavaCompilerAndExecutor {
@@ -44,21 +45,35 @@ public class JavaCompilerAndExecutor {
       String javacCommand = javaHomePath + "javac " + pathToJavaFile;
       log.info(javacCommand);
       Process javacProcess = Runtime.getRuntime().exec(javacCommand);
-      javacProcess.waitFor();
+      if (!javacProcess.waitFor(2, TimeUnit.SECONDS)) {
+        log.info("Превышено время ожидания компиляции решения");
+        javacProcess.destroyForcibly();
+        return "Ошибка при выполнении программы";
+      }
 
       // 5. Заупустим то, что получилось, и вернем результат
       String javaCommand = javaHomePath + "java -client -Xmx544m -Xss64m -DBFT_CHECKER -cp " + compilePath + " " + className;
       log.info(javaCommand);
+      log.info("java input:\n" + input);
       Process javaProcess = Runtime.getRuntime().exec(javaCommand);
       try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(javaProcess.getOutputStream()))) {
         writer.write(input, 0, input.length());
       }
+      if (!javaProcess.waitFor(2, TimeUnit.SECONDS)) {
+        log.info("Превышено время ожидания выполнения решения");
+        javaProcess.destroyForcibly();
+        return "Ошибка при выполнении программы";
+      }
       String output = getProcessOutput(javaProcess.getInputStream());
       String error = getProcessOutput(javaProcess.getErrorStream());
-      javaProcess.waitFor();
 
-      if (StringUtils.isNotEmpty(error))
+
+      if (StringUtils.isNotEmpty(error)) {
+        log.info("java error:\n" + error);
         return "Ошибка при выполнении программы";
+      }
+
+      log.info("java output:\n" + output);
       return output;
     } catch (Exception e) {
       return "Ошибка комиляции";
