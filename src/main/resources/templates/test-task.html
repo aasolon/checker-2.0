@@ -72,7 +72,7 @@
     <br/>
     <br/>
 
-    <table th:unless="${#lists.isEmpty(resultList)}">
+    <table th:unless="${#lists.isEmpty(resultList)}" class="table-striped table-with-head">
       <thead>
         <tr>
           <th></th>
@@ -81,7 +81,7 @@
             Решение 1
           </th>
         </tr>
-        <tr>
+        <tr class="thead-row-with-bottom-border ">
           <th></th>
           <th>Вердикт</th>
           <th th:each="result : ${resultList}">
@@ -99,10 +99,14 @@
             <button title="Удалить" style="background: lightcoral" th:id="${'deleteTestCase' + testCase.id}" onclick="deleteTestCase(event);">-</button>
           </td>
           <td>
-            <pre th:utext="${testCase.input}"></pre>
+            <div style="max-width: 350px; max-height: 250px; overflow: auto">
+              <pre th:utext="${testCase.input}"></pre>
+            </div>
           </td>
           <td th:each="result : ${resultList}">
-            <pre th:utext="${testCase.resultList[__${result.id}__]?.output}"></pre>
+            <div style="max-width: 350px; max-height: 250px; overflow: auto">
+              <pre th:utext="${testCase.resultList[__${result.id}__]?.output}"></pre>
+            </div>
           </td>
         </tr>
       </tbody>

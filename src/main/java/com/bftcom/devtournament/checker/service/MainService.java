@@ -110,7 +110,7 @@ public class MainService {
 
       List<Result> resultList = resultDao.findByTaskIdAndAccepted(testCase.getTaskId());
       for (Result result : resultList) {
-        createAndSaveTestCaseResult(testCase, result);
+        createAndSaveTestCaseResult(team, testCase, result);
       }
     }
   }
@@ -139,7 +139,7 @@ public class MainService {
             .filter(e -> !testCaseResultMap.containsKey(e.getId())).collect(Collectors.toList());
         if (!notProcessedResultList.isEmpty()) {
           for (Result notProcessedResult : notProcessedResultList)
-            testCaseResultMap.put(notProcessedResult.getId(), createAndSaveTestCaseResult(testCase, notProcessedResult));
+            testCaseResultMap.put(notProcessedResult.getId(), createAndSaveTestCaseResult(team, testCase, notProcessedResult));
         }
 
         testCase.setResultList(testCaseResultMap);
@@ -170,7 +170,9 @@ public class MainService {
     return team;
   }
 
-  private TestCaseResult createAndSaveTestCaseResult(TestCase testCase, Result result) {
+  private TestCaseResult createAndSaveTestCaseResult(Team team, TestCase testCase, Result result) {
+    log.info("compiling testcase of team ID=" + team.getId() + " (TOKEN=" + team.getToken() + ") for task ID=" + testCase.getTaskId() +
+        " and result ID=" + result.getId());
     String output = JavaCompilerAndExecutor.compileAndExecute(result.getSourceCode(), testCase.getInput());
     TestCaseResult testCaseResult = constructTestCaseResultObject(testCase, result, output);
     testCaseResultDao.save(testCaseResult);

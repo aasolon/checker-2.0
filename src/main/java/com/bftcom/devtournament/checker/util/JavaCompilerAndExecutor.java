@@ -4,19 +4,20 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithPublicModifier;
+import org.apache.commons.exec.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class JavaCompilerAndExecutor {
   private static final Logger log = LoggerFactory.getLogger(JavaCompilerAndExecutor.class);
@@ -55,28 +56,34 @@ public class JavaCompilerAndExecutor {
       String javaCommand = javaHomePath + "java -client -Xmx544m -Xss64m -DBFT_CHECKER -cp " + compilePath + " " + className;
       log.info(javaCommand);
       log.info("java input:\n" + input);
-      Process javaProcess = Runtime.getRuntime().exec(javaCommand);
-      try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(javaProcess.getOutputStream()))) {
-        writer.write(input, 0, input.length());
-      }
-      if (!javaProcess.waitFor(2, TimeUnit.SECONDS)) {
-        log.info("Превышено время ожидания выполнения решения");
-        javaProcess.destroyForcibly();
+      ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+      ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+      ByteArrayInputStream stdin = new ByteArrayInputStream(input.getBytes());
+      PumpStreamHandler streamHandler = new PumpStreamHandler(stdout, stderr, stdin);
+      CommandLine cmdLine = CommandLine.parse(javaCommand);
+      DefaultExecutor executor = new DefaultExecutor();
+      executor.setStreamHandler(streamHandler);
+      executor.setWatchdog(new ExecuteWatchdog(2 * 1000)); // даем 2 сек на запуск решения
+      try {
+        executor.execute(cmdLine);
+      } catch (ExecuteException e) {
+        log.info("Превышено время ожидания выполнения решения", e);
         return "Ошибка при выполнении программы";
       }
-      String output = getProcessOutput(javaProcess.getInputStream());
-      String error = getProcessOutput(javaProcess.getErrorStream());
+      String output = stdout.toString();
+      String error = stderr.toString();
 
 
       if (StringUtils.isNotEmpty(error)) {
         log.info("java error:\n" + error);
         return "Ошибка при выполнении программы";
+      } else {
+        log.info("java output:\n" + output);
+        return output;
       }
-
-      log.info("java output:\n" + output);
-      return output;
     } catch (Exception e) {
-      return "Ошибка комиляции";
+      log.info("Ошибка комиляции", e);
+      return "Ошибка при выполнении программы";
     } finally {
       try {
         FileUtils.deleteDirectory(new File(compilePath));
@@ -84,16 +91,6 @@ public class JavaCompilerAndExecutor {
         log.info("shit happens");
       }
     }
-  }
-
-  private static String getProcessOutput(InputStream ins) throws Exception {
-    List<String> lines = new ArrayList<>();
-    String line;
-    BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-    while ((line = in.readLine()) != null) {
-      lines.add(line);
-    }
-    return lines.stream().collect(Collectors.joining("\n"));
   }
 
   private static String removePackage(String sourceCode) {
