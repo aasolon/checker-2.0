@@ -49,7 +49,7 @@ public class JavaCompilerAndExecutor {
       if (!javacProcess.waitFor(2, TimeUnit.SECONDS)) {
         log.info("Превышено время ожидания компиляции решения");
         javacProcess.destroyForcibly();
-        return "Ошибка при выполнении программы";
+        return "Превышено время ожидания компиляции решения";
       }
 
       // 5. Заупустим то, что получилось, и вернем результат
